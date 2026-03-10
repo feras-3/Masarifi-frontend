@@ -22,9 +22,9 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({ refreshTrigger = 0 }) 
       setError(null);
       const response = await alertService.getAlerts();
       // Filter to show only non-dismissed alerts
-      const activeAlerts = response.alerts.filter(alert => !alert.dismissed);
+      const activeAlerts = response.filter(alert => !alert.dismissed);
       setAlerts(activeAlerts);
-      setUnreadCount(response.unreadCount);
+      setUnreadCount(activeAlerts.length);
     } catch (err: any) {
       setError('Failed to load alerts. Please try again.');
       console.error('Error fetching alerts:', err);
@@ -46,8 +46,8 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({ refreshTrigger = 0 }) 
     }
   };
 
-  const getAlertStyles = (type: 'WARNING' | 'CRITICAL') => {
-    if (type === 'CRITICAL') {
+  const getAlertStyles = (type: string) => {
+    if (type === 'BUDGET_EXCEEDED' || type === 'BUDGET_100_PERCENT' || type === 'CRITICAL') {
       return {
         backgroundColor: '#ffebee',
         borderColor: '#f44336',
@@ -130,7 +130,7 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({ refreshTrigger = 0 }) 
                     color: styles.iconColor
                   }}
                 >
-                  {alert.type === 'CRITICAL' ? 'Budget Exceeded!' : 'Budget Warning!'}
+                  {(alert.type === 'BUDGET_EXCEEDED' || alert.type === 'BUDGET_100_PERCENT') ? 'Budget Exceeded!' : 'Budget Warning!'}
                 </span>
               </div>
 
@@ -145,7 +145,7 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({ refreshTrigger = 0 }) 
                   <strong>Percentage:</strong> {alert.percentageExceeded.toFixed(1)}%
                 </p>
                 <p style={{ margin: '5px 0', color: '#666' }}>
-                  {alert.type === 'CRITICAL'
+                  {(alert.type === 'BUDGET_EXCEEDED' || alert.type === 'BUDGET_100_PERCENT')
                     ? 'You have exceeded your budget limit. Consider reviewing your expenses.'
                     : 'You have reached 80% of your budget. Monitor your spending carefully.'}
                 </p>

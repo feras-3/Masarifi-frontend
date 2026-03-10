@@ -32,9 +32,10 @@ apiClient.interceptors.response.use(
     if (error.response && error.response.status === 401) {
       // Token is invalid or expired
       localStorage.removeItem('auth_token');
-      
-      // Redirect to login page or dispatch logout action
-      window.location.href = '/login';
+      localStorage.removeItem('auth_username');
+
+      // Redirect to root so the SPA re-renders the login form
+      window.location.href = '/';
     }
     return Promise.reject(error);
   }
