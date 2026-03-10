@@ -32,7 +32,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
       setLoading(true);
       setError(null);
       const response = await transactionService.getAllTransactions();
-      setTransactions(response.transactions || []);
+      setTransactions(response || []);
     } catch (err) {
       setError('Failed to load transactions. Please try again.');
       console.error('Error fetching transactions:', err);

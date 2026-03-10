@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import apiClient from '../services/apiClient';
+import { authService } from '../services/authService';
 
 interface LoginFormProps {
   onLoginSuccess?: () => void;
@@ -36,13 +36,12 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
     setIsLoading(true);
 
     try {
-      const response = await apiClient.post('/api/auth/login', {
+      const response = await authService.login({
         username,
         password,
       });
 
-      const { token } = response.data;
-      login(token);
+      login(response.token, response.username);
       
       if (onLoginSuccess) {
         onLoginSuccess();

@@ -1,20 +1,18 @@
+export type AlertType = 'BUDGET_80_PERCENT' | 'BUDGET_100_PERCENT' | 'BUDGET_EXCEEDED';
+
 export interface Alert {
   id: string;
-  userId: string;
-  type: 'WARNING' | 'CRITICAL';
+  userId?: string;
+  type: AlertType;
   budgetAmount: number;
   currentSpending: number;
   percentageExceeded: number;
+  period: string;
   createdAt: string;
   dismissed: boolean;
-  period: string;
-}
-
-export interface AlertsResponse {
-  alerts: Alert[];
-  unreadCount: number;
 }
 
 export interface DismissAlertResponse {
-  success: boolean;
+  id: string;
+  dismissed: boolean;
 }

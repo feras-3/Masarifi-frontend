@@ -269,11 +269,8 @@ const styles = {
   dashboardGrid: {
     display: 'grid',
     gridTemplateColumns: '1fr 400px',
-    gap: '30px',
-    '@media (max-width: 1024px)': {
-      gridTemplateColumns: '1fr'
-    }
-  } as React.CSSProperties,
+    gap: '30px'
+  },
   mainColumn: {
     minWidth: 0
   },
