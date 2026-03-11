@@ -11,6 +11,7 @@ import { BudgetStatus, BudgetRequest } from '../types/budget'
 import { budgetService } from '../services/budgetService'
 import { BudgetForm } from './BudgetForm'
 import { useTheme } from '../contexts/ThemeContext'
+import { ConfirmDialog } from './ConfirmDialog'
 
 interface BudgetSummaryProps {
   refreshTrigger?: number
@@ -25,6 +26,15 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
   const [error, setError] = useState<string | null>(null)
   const [editingBudgetId, setEditingBudgetId] = useState<string | null>(null)
   const [editingBudget, setEditingBudget] = useState<BudgetStatus | null>(null)
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    isOpen: boolean
+    budgetId: string | null
+    category: string
+  }>({
+    isOpen: false,
+    budgetId: null,
+    category: ''
+  })
 
   useEffect(() => {
     fetchBudgetStatus()
@@ -59,20 +69,30 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
     setEditingBudget(null)
   }
 
-  const handleDeleteClick = async (budgetId: string) => {
-    if (
-      window.confirm(
-        'Are you sure you want to delete this budget? This action cannot be undone.'
-      )
-    ) {
-      try {
-        await budgetService.deleteBudget(budgetId)
-        await fetchBudgetStatus()
-      } catch (err: any) {
-        console.error('Error deleting budget:', err)
-        setError('Failed to delete budget. Please try again.')
-      }
+  const handleDeleteClick = async (budgetId: string, category: string) => {
+    setDeleteConfirm({
+      isOpen: true,
+      budgetId,
+      category
+    })
+  }
+
+  const confirmDelete = async () => {
+    if (!deleteConfirm.budgetId) return
+
+    try {
+      await budgetService.deleteBudget(deleteConfirm.budgetId)
+      await fetchBudgetStatus()
+      setDeleteConfirm({ isOpen: false, budgetId: null, category: '' })
+    } catch (err: any) {
+      console.error('Error deleting budget:', err)
+      setError('Failed to delete budget. Please try again.')
+      setDeleteConfirm({ isOpen: false, budgetId: null, category: '' })
     }
+  }
+
+  const cancelDelete = () => {
+    setDeleteConfirm({ isOpen: false, budgetId: null, category: '' })
   }
 
   const handleUpdateBudget = async (budgetRequest: BudgetRequest) => {
@@ -189,7 +209,12 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                     Edit
                   </button>
                   <button
-                    onClick={() => handleDeleteClick(budgetStatus.budgetId)}
+                    onClick={() =>
+                      handleDeleteClick(
+                        budgetStatus.budgetId,
+                        budgetStatus.category || 'General'
+                      )
+                    }
                     style={{
                       padding: '6px 12px',
                       backgroundColor: '#f44336',
@@ -334,8 +359,12 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                     padding: '10px',
                     backgroundColor:
                       budgetStatus.percentageUsed >= 100
-                        ? '#ffebee'
-                        : '#fff3e0',
+                        ? isDarkMode
+                          ? '#3d1a1a'
+                          : '#ffebee'
+                        : isDarkMode
+                          ? '#3d2a1a'
+                          : '#fff3e0',
                     border: `1px solid ${budgetStatus.percentageUsed >= 100 ? '#f44336' : '#ff9800'}`,
                     borderRadius: '4px',
                     marginTop: '16px',
@@ -347,15 +376,24 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                       fontWeight: 'bold',
                       color:
                         budgetStatus.percentageUsed >= 100
-                          ? '#f44336'
-                          : '#ff9800'
+                          ? isDarkMode
+                            ? '#ff8a80'
+                            : '#f44336'
+                          : isDarkMode
+                            ? '#ffb74d'
+                            : '#ff9800'
                     }}
                   >
                     {budgetStatus.percentageUsed >= 100
                       ? '⚠️ Budget Exceeded!'
                       : '⚠️ Warning!'}
                   </span>
-                  <span style={{ marginLeft: '8px' }}>
+                  <span
+                    style={{
+                      marginLeft: '8px',
+                      color: isDarkMode ? '#e0e0e0' : '#333'
+                    }}
+                  >
                     {budgetStatus.percentageUsed >= 100
                       ? 'You have exceeded your budget.'
                       : 'You have used more than 80% of your budget.'}
@@ -442,6 +480,18 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirm.isOpen}
+        title="Delete Budget"
+        message={`Are you sure you want to delete the ${deleteConfirm.category} budget? This action cannot be undone.`}
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+        isDanger={true}
+      />
     </>
   )
 }

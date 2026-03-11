@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { Transaction, TransactionSource, Category } from '../types/transaction'
 import { transactionService } from '../services/transactionService'
 import { useTheme } from '../contexts/ThemeContext'
+import { ConfirmDialog } from './ConfirmDialog'
 
 interface TransactionListProps {
   onEdit: (transaction: Transaction) => void
@@ -25,6 +26,15 @@ export const TransactionList: React.FC<TransactionListProps> = ({
     'ALL'
   )
   const [categoryFilter, setCategoryFilter] = useState<'ALL' | Category>('ALL')
+  const [deleteConfirm, setDeleteConfirm] = useState<{
+    isOpen: boolean
+    transactionId: string | null
+    description: string
+  }>({
+    isOpen: false,
+    transactionId: null,
+    description: ''
+  })
 
   useEffect(() => {
     fetchTransactions()
@@ -66,15 +76,29 @@ export const TransactionList: React.FC<TransactionListProps> = ({
     return filteredTransactions.reduce((sum, t) => sum + t.amount, 0)
   }
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm('Are you sure you want to delete this transaction?')) {
-      try {
-        onDelete(id)
-        await fetchTransactions()
-      } catch (err) {
-        console.error('Error deleting transaction:', err)
-      }
+  const handleDelete = async (id: string, description: string) => {
+    setDeleteConfirm({
+      isOpen: true,
+      transactionId: id,
+      description
+    })
+  }
+
+  const confirmDelete = async () => {
+    if (!deleteConfirm.transactionId) return
+
+    try {
+      onDelete(deleteConfirm.transactionId)
+      await fetchTransactions()
+      setDeleteConfirm({ isOpen: false, transactionId: null, description: '' })
+    } catch (err) {
+      console.error('Error deleting transaction:', err)
+      setDeleteConfirm({ isOpen: false, transactionId: null, description: '' })
     }
+  }
+
+  const cancelDelete = () => {
+    setDeleteConfirm({ isOpen: false, transactionId: null, description: '' })
   }
 
   if (loading) {
@@ -579,7 +603,9 @@ export const TransactionList: React.FC<TransactionListProps> = ({
                       </button>
                     )}
                     <button
-                      onClick={() => handleDelete(transaction.id)}
+                      onClick={() =>
+                        handleDelete(transaction.id, transaction.description)
+                      }
                       style={{
                         padding: '7px 14px',
                         backgroundColor: '#f44336',
@@ -631,6 +657,18 @@ export const TransactionList: React.FC<TransactionListProps> = ({
           No transactions match the selected filters.
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={deleteConfirm.isOpen}
+        title="Delete Transaction"
+        message={`Are you sure you want to delete "${deleteConfirm.description}"? This action cannot be undone.`}
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        onConfirm={confirmDelete}
+        onCancel={cancelDelete}
+        isDanger={true}
+      />
     </div>
   )
 }

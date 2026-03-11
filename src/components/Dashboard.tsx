@@ -105,7 +105,7 @@ export const Dashboard: React.FC = () => {
 
   const renderNavigation = () => (
     <nav style={styles.nav}>
-      <div style={styles.navBrand}>💰 Expense Tracker</div>
+      <div style={styles.navBrand}>💰 Masarifi</div>
       <div style={styles.navButtons}>
         <button
           onClick={() => setCurrentView('dashboard')}
@@ -212,7 +212,7 @@ export const Dashboard: React.FC = () => {
         <BudgetSummary refreshTrigger={refreshTrigger} />
 
         {/* Spending Trends - Full Width */}
-        <div style={{ marginBottom: '16px' }}>
+        <div style={{ marginBottom: '16px', marginTop: '24px' }}>
           <SpendingTrendsChart refreshTrigger={refreshTrigger} />
         </div>
 
