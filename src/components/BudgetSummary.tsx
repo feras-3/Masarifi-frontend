@@ -58,6 +58,22 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
     setEditingBudget(null)
   }
 
+  const handleDeleteClick = async (budgetId: string) => {
+    if (
+      window.confirm(
+        'Are you sure you want to delete this budget? This action cannot be undone.'
+      )
+    ) {
+      try {
+        await budgetService.deleteBudget(budgetId)
+        await fetchBudgetStatus()
+      } catch (err: any) {
+        console.error('Error deleting budget:', err)
+        setError('Failed to delete budget. Please try again.')
+      }
+    }
+  }
+
   const handleUpdateBudget = async (budgetRequest: BudgetRequest) => {
     if (!editingBudgetId) return
 
@@ -129,28 +145,56 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                 <h2 style={{ marginTop: 0, marginBottom: 0 }}>
                   {budgetStatus.category || 'General'} Budget
                 </h2>
-                <button
-                  onClick={() => handleEditClick(budgetStatus)}
-                  style={{
-                    padding: '6px 12px',
-                    backgroundColor: '#2c3e50',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '6px',
-                    fontSize: '13px',
-                    fontWeight: 600,
-                    cursor: 'pointer',
-                    transition: 'background-color 0.2s'
-                  }}
-                  onMouseEnter={(e) =>
-                    (e.currentTarget.style.backgroundColor = '#1a252f')
-                  }
-                  onMouseLeave={(e) =>
-                    (e.currentTarget.style.backgroundColor = '#2c3e50')
-                  }
-                >
-                  Edit
-                </button>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={() => handleEditClick(budgetStatus)}
+                    style={{
+                      padding: '6px 12px',
+                      backgroundColor: '#2c3e50',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#1a252f'
+                      e.currentTarget.style.transform = 'translateY(-1px)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#2c3e50'
+                      e.currentTarget.style.transform = 'translateY(0)'
+                    }}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDeleteClick(budgetStatus.budgetId)}
+                    style={{
+                      padding: '6px 12px',
+                      backgroundColor: '#f44336',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      cursor: 'pointer',
+                      transition: 'all 0.2s ease'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.backgroundColor = '#da190b'
+                      e.currentTarget.style.transform = 'translateY(-1px)'
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.backgroundColor = '#f44336'
+                      e.currentTarget.style.transform = 'translateY(0)'
+                    }}
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
               <div
                 style={{
