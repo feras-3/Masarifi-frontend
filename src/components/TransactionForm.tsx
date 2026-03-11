@@ -4,6 +4,7 @@ import {
   TransactionRequest,
   ValidationErrors
 } from '../types/transaction'
+import { useTheme } from '../contexts/ThemeContext'
 
 interface TransactionFormProps {
   onSubmit: (transaction: TransactionRequest) => Promise<void>
@@ -16,6 +17,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
   initialData,
   submitLabel = 'Add Transaction'
 }) => {
+  const { isDarkMode } = useTheme()
   const [formData, setFormData] = useState<TransactionRequest>({
     amount: initialData?.amount || 0,
     date: initialData?.date || new Date().toISOString().split('T')[0],
@@ -155,12 +157,13 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
   const inputStyle: React.CSSProperties = {
     width: '100%',
     padding: '12px 14px',
-    border: '1.5px solid #e0e0e0',
+    border: `1.5px solid ${isDarkMode ? '#2c3e50' : '#e0e0e0'}`,
     borderRadius: '8px',
     fontSize: '14px',
     outline: 'none',
     boxSizing: 'border-box',
-    backgroundColor: 'white',
+    backgroundColor: isDarkMode ? '#0f3460' : 'white',
+    color: isDarkMode ? '#e0e0e0' : '#333',
     transition: 'border-color 0.2s ease'
   }
 
@@ -169,7 +172,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
     marginBottom: '8px',
     fontSize: '14px',
     fontWeight: 600,
-    color: '#2c3e50'
+    color: isDarkMode ? '#e0e0e0' : '#2c3e50'
   }
 
   return (

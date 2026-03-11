@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Transaction, TransactionSource, Category } from '../types/transaction'
 import { transactionService } from '../services/transactionService'
+import { useTheme } from '../contexts/ThemeContext'
 
 interface TransactionListProps {
   onEdit: (transaction: Transaction) => void
@@ -13,6 +14,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
   onDelete,
   refreshTrigger = 0
 }) => {
+  const { isDarkMode } = useTheme()
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [filteredTransactions, setFilteredTransactions] = useState<
     Transaction[]
@@ -81,7 +83,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
         style={{
           padding: '40px',
           textAlign: 'center',
-          color: '#666',
+          color: isDarkMode ? '#b0b0b0' : '#666',
           fontSize: '15px'
         }}
       >
@@ -127,29 +129,29 @@ export const TransactionList: React.FC<TransactionListProps> = ({
       {/* Header Section */}
       <div
         style={{
-          marginBottom: '24px',
+          marginBottom: '20px',
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center',
+          alignItems: 'flex-start',
           flexWrap: 'wrap',
-          gap: '16px'
+          gap: '12px'
         }}
       >
         <div>
           <h2
             style={{
               margin: '0 0 8px 0',
-              fontSize: '24px',
+              fontSize: '22px',
               fontWeight: 600,
-              color: '#2c3e50'
+              color: isDarkMode ? '#e0e0e0' : '#2c3e50'
             }}
           >
             Transactions
           </h2>
           <div
             style={{
-              fontSize: '15px',
-              color: '#666',
+              fontSize: '14px',
+              color: isDarkMode ? '#b0b0b0' : '#666',
               fontWeight: 500
             }}
           >
@@ -159,20 +161,30 @@ export const TransactionList: React.FC<TransactionListProps> = ({
         </div>
 
         <div
+          className="filter-controls"
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '12px',
+            gap: '10px',
             flexWrap: 'wrap'
           }}
         >
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              flex: '1 1 auto',
+              minWidth: '200px'
+            }}
+          >
             <label
               htmlFor="categoryFilter"
               style={{
-                fontSize: '14px',
+                fontSize: '13px',
                 fontWeight: 500,
-                color: '#555'
+                color: isDarkMode ? '#b0b0b0' : '#555',
+                whiteSpace: 'nowrap'
               }}
             >
               Category:
@@ -184,15 +196,17 @@ export const TransactionList: React.FC<TransactionListProps> = ({
                 setCategoryFilter(e.target.value as 'ALL' | Category)
               }
               style={{
-                padding: '8px 32px 8px 12px',
-                border: '1.5px solid #e0e0e0',
+                padding: '8px 28px 8px 10px',
+                border: `1.5px solid ${isDarkMode ? '#2c3e50' : '#e0e0e0'}`,
                 borderRadius: '8px',
-                fontSize: '14px',
+                fontSize: '13px',
                 fontWeight: 500,
-                backgroundColor: 'white',
+                backgroundColor: isDarkMode ? '#0f3460' : 'white',
+                color: isDarkMode ? '#e0e0e0' : '#333',
                 cursor: 'pointer',
                 outline: 'none',
-                transition: 'border-color 0.2s'
+                transition: 'border-color 0.2s',
+                flex: 1
               }}
             >
               <option value="ALL">All Categories</option>
@@ -204,13 +218,22 @@ export const TransactionList: React.FC<TransactionListProps> = ({
             </select>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px',
+              flex: '1 1 auto',
+              minWidth: '180px'
+            }}
+          >
             <label
               htmlFor="sourceFilter"
               style={{
-                fontSize: '14px',
+                fontSize: '13px',
                 fontWeight: 500,
-                color: '#555'
+                color: isDarkMode ? '#b0b0b0' : '#555',
+                whiteSpace: 'nowrap'
               }}
             >
               Source:
@@ -222,15 +245,17 @@ export const TransactionList: React.FC<TransactionListProps> = ({
                 setSourceFilter(e.target.value as 'ALL' | TransactionSource)
               }
               style={{
-                padding: '8px 32px 8px 12px',
-                border: '1.5px solid #e0e0e0',
+                padding: '8px 28px 8px 10px',
+                border: `1.5px solid ${isDarkMode ? '#2c3e50' : '#e0e0e0'}`,
                 borderRadius: '8px',
-                fontSize: '14px',
+                fontSize: '13px',
                 fontWeight: 500,
-                backgroundColor: 'white',
+                backgroundColor: isDarkMode ? '#0f3460' : 'white',
+                color: isDarkMode ? '#e0e0e0' : '#333',
                 cursor: 'pointer',
                 outline: 'none',
-                transition: 'border-color 0.2s'
+                transition: 'border-color 0.2s',
+                flex: 1
               }}
             >
               <option value="ALL">All Sources</option>
@@ -244,35 +269,42 @@ export const TransactionList: React.FC<TransactionListProps> = ({
       {/* Total Section */}
       <div
         style={{
-          marginBottom: '24px',
-          padding: '16px 20px',
-          backgroundColor: '#f8f9fa',
+          marginBottom: '20px',
+          padding: '14px 16px',
+          backgroundColor: isDarkMode ? '#16213e' : '#f8f9fa',
           borderRadius: '10px',
-          border: '1px solid #e9ecef'
+          border: `1px solid ${isDarkMode ? '#2c3e50' : '#e9ecef'}`
         }}
       >
         <div
           style={{
-            fontSize: '13px',
-            color: '#666',
+            fontSize: '12px',
+            color: isDarkMode ? '#b0b0b0' : '#666',
             marginBottom: '4px',
             fontWeight: 500
           }}
         >
           Total Amount
         </div>
-        <div style={{ fontSize: '28px', fontWeight: 700, color: '#2c3e50' }}>
+        <div
+          style={{
+            fontSize: '24px',
+            fontWeight: 700,
+            color: isDarkMode ? '#e0e0e0' : '#2c3e50'
+          }}
+        >
           ${calculateTotal().toFixed(2)}
         </div>
       </div>
 
       {/* Table Section */}
       <div
+        className="table-container"
         style={{
           overflowX: 'auto',
           borderRadius: '12px',
-          border: '1px solid #e0e0e0',
-          backgroundColor: 'white',
+          border: `1px solid ${isDarkMode ? '#2c3e50' : '#e0e0e0'}`,
+          backgroundColor: isDarkMode ? '#16213e' : 'white',
           boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
           WebkitOverflowScrolling: 'touch'
         }}
@@ -287,8 +319,8 @@ export const TransactionList: React.FC<TransactionListProps> = ({
           <thead>
             <tr
               style={{
-                backgroundColor: '#f8f9fa',
-                borderBottom: '2px solid #e0e0e0'
+                backgroundColor: isDarkMode ? '#0f3460' : '#f8f9fa',
+                borderBottom: `2px solid ${isDarkMode ? '#2c3e50' : '#e0e0e0'}`
               }}
             >
               <th
@@ -397,7 +429,9 @@ export const TransactionList: React.FC<TransactionListProps> = ({
                   transition: 'background-color 0.15s ease'
                 }}
                 onMouseEnter={(e) =>
-                  (e.currentTarget.style.backgroundColor = '#f8f9fa')
+                  (e.currentTarget.style.backgroundColor = isDarkMode
+                    ? '#0f3460'
+                    : '#f8f9fa')
                 }
                 onMouseLeave={(e) =>
                   (e.currentTarget.style.backgroundColor = 'transparent')
@@ -407,7 +441,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
                   style={{
                     padding: '16px',
                     fontSize: '14px',
-                    color: '#555',
+                    color: isDarkMode ? '#b0b0b0' : '#555',
                     whiteSpace: 'nowrap'
                   }}
                 >
@@ -421,7 +455,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
                   style={{
                     padding: '16px',
                     fontSize: '14px',
-                    color: '#2c3e50',
+                    color: isDarkMode ? '#e0e0e0' : '#2c3e50',
                     fontWeight: 500,
                     maxWidth: '250px'
                   }}
@@ -432,7 +466,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
                   style={{
                     padding: '16px',
                     fontSize: '14px',
-                    color: '#666'
+                    color: isDarkMode ? '#e0e0e0' : '#666'
                   }}
                 >
                   {transaction.merchantName || transaction.description}
@@ -442,7 +476,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
                     padding: '16px',
                     fontSize: '15px',
                     fontWeight: 600,
-                    color: '#2c3e50',
+                    color: isDarkMode ? '#e0e0e0' : '#2c3e50',
                     textAlign: 'right',
                     whiteSpace: 'nowrap'
                   }}
@@ -455,7 +489,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
                       style={{
                         fontSize: '14px',
                         fontWeight: 500,
-                        color: '#2c3e50'
+                        color: isDarkMode ? '#e0e0e0' : '#2c3e50'
                       }}
                     >
                       {transaction.category}
@@ -464,7 +498,7 @@ export const TransactionList: React.FC<TransactionListProps> = ({
                       <div
                         style={{
                           fontSize: '12px',
-                          color: '#999',
+                          color: isDarkMode ? '#999' : '#999',
                           marginTop: '4px'
                         }}
                       >
@@ -488,7 +522,12 @@ export const TransactionList: React.FC<TransactionListProps> = ({
                       fontWeight: 600,
                       backgroundColor:
                         transaction.source === 'PLAID' ? '#e3f2fd' : '#f5f5f5',
-                      color: transaction.source === 'PLAID' ? '#1976d2' : '#666'
+                      color:
+                        transaction.source === 'PLAID'
+                          ? '#1976d2'
+                          : isDarkMode
+                            ? '#b0b0b0'
+                            : '#666'
                     }}
                   >
                     {transaction.source === 'PLAID' ? '🏦 Plaid' : '✏️ Manual'}

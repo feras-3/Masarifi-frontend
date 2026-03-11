@@ -3,6 +3,7 @@ import { PlaidAccount } from '../types/plaid'
 import plaidService from '../services/plaidService'
 import ErrorMessage from './ErrorMessage'
 import LoadingSpinner from './LoadingSpinner'
+import { useTheme } from '../contexts/ThemeContext'
 
 interface PlaidAccountStatusProps {
   refreshTrigger?: number
@@ -13,6 +14,7 @@ export const PlaidAccountStatus: React.FC<PlaidAccountStatusProps> = ({
   refreshTrigger = 0,
   onUnlink
 }) => {
+  const { isDarkMode } = useTheme()
   const [accounts, setAccounts] = useState<PlaidAccount[]>([])
   const [linked, setLinked] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -79,34 +81,70 @@ export const PlaidAccountStatus: React.FC<PlaidAccountStatusProps> = ({
 
   return (
     <div style={styles.container}>
-      <h3 style={styles.title}>Linked Bank Accounts</h3>
+      <h3
+        style={{ ...styles.title, color: isDarkMode ? '#e0e0e0' : '#2c3e50' }}
+      >
+        Linked Bank Accounts
+      </h3>
 
       {activeAccounts.map((account) => (
-        <div key={account.id} style={styles.accountCard}>
+        <div
+          key={account.id}
+          style={{
+            ...styles.accountCard,
+            backgroundColor: isDarkMode ? '#0f3460' : 'white',
+            border: `1px solid ${isDarkMode ? '#2c3e50' : '#e0e0e0'}`
+          }}
+        >
           <div style={styles.accountInfo}>
-            <div style={styles.institutionName}>
+            <div
+              style={{
+                ...styles.institutionName,
+                color: isDarkMode ? '#e0e0e0' : '#2c3e50'
+              }}
+            >
               🏦 {account.institutionName}
             </div>
 
             {account.accountName && (
-              <div style={styles.accountDetail}>
+              <div
+                style={{
+                  ...styles.accountDetail,
+                  color: isDarkMode ? '#b0b0b0' : '#666'
+                }}
+              >
                 <strong>Account:</strong> {account.accountName}
               </div>
             )}
 
             {account.accountMask && (
-              <div style={styles.accountDetail}>
+              <div
+                style={{
+                  ...styles.accountDetail,
+                  color: isDarkMode ? '#b0b0b0' : '#666'
+                }}
+              >
                 <strong>Account Number:</strong> ****{account.accountMask}
               </div>
             )}
 
-            <div style={styles.accountDetail}>
+            <div
+              style={{
+                ...styles.accountDetail,
+                color: isDarkMode ? '#b0b0b0' : '#666'
+              }}
+            >
               <strong>Linked:</strong>{' '}
               {new Date(account.linkedAt).toLocaleDateString()}
             </div>
 
             {account.lastSyncAt && (
-              <div style={styles.accountDetail}>
+              <div
+                style={{
+                  ...styles.accountDetail,
+                  color: isDarkMode ? '#b0b0b0' : '#666'
+                }}
+              >
                 <strong>Last Sync:</strong>{' '}
                 {new Date(account.lastSyncAt).toLocaleString()}
               </div>

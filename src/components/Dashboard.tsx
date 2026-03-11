@@ -8,17 +8,22 @@ import SyncTransactionsButton from './SyncTransactionsButton'
 import { TransactionForm } from './TransactionForm'
 import { BudgetForm } from './BudgetForm'
 import { TransactionEditModal } from './TransactionEditModal'
+import { SpendingTrendsChart } from './SpendingTrendsChart'
+import { CategoryBreakdownChart } from './CategoryBreakdownChart'
+import { BudgetInsightsWidget } from './BudgetInsightsWidget'
 import { Transaction, TransactionRequest } from '../types/transaction'
 import { BudgetRequest } from '../types/budget'
 import { transactionService } from '../services/transactionService'
 import { budgetService } from '../services/budgetService'
 import plaidService from '../services/plaidService'
 import { useAuth } from '../contexts/AuthContext'
+import { useTheme } from '../contexts/ThemeContext'
 
 type View = 'dashboard' | 'add-transaction' | 'manage-budget'
 
 export const Dashboard: React.FC = () => {
   const { logout, username } = useAuth()
+  const { isDarkMode, toggleDarkMode } = useTheme()
   const [currentView, setCurrentView] = useState<View>('dashboard')
   const [refreshTrigger, setRefreshTrigger] = useState(0)
   const [editingTransaction, setEditingTransaction] =
@@ -165,6 +170,24 @@ export const Dashboard: React.FC = () => {
           👤 {username}
         </span>
         <button
+          onClick={toggleDarkMode}
+          aria-label="Toggle dark mode"
+          style={{
+            ...styles.logoutButton,
+            padding: '8px 12px'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
+            e.currentTarget.style.borderColor = 'white'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'transparent'
+            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.5)'
+          }}
+        >
+          {isDarkMode ? '☀️' : '🌙'}
+        </button>
+        <button
           onClick={logout}
           style={styles.logoutButton}
           onMouseEnter={(e) => {
@@ -187,6 +210,12 @@ export const Dashboard: React.FC = () => {
       <div style={styles.mainColumn}>
         <AlertBanner refreshTrigger={refreshTrigger} />
         <BudgetSummary refreshTrigger={refreshTrigger} />
+
+        {/* Spending Trends - Full Width */}
+        <div style={{ marginBottom: '16px' }}>
+          <SpendingTrendsChart refreshTrigger={refreshTrigger} />
+        </div>
+
         <TransactionList
           onEdit={handleEdit}
           onDelete={handleDelete}
@@ -195,11 +224,38 @@ export const Dashboard: React.FC = () => {
       </div>
 
       <div style={styles.sideColumn}>
-        <div style={styles.plaidSection} className="plaid-section">
-          <h3 style={styles.sectionTitle}>Bank Integration</h3>
+        <BudgetInsightsWidget refreshTrigger={refreshTrigger} />
+
+        {/* Category Breakdown in Sidebar */}
+        <div style={{ marginTop: '16px' }}>
+          <CategoryBreakdownChart refreshTrigger={refreshTrigger} />
+        </div>
+
+        <div
+          style={{
+            ...styles.plaidSection,
+            backgroundColor: isDarkMode ? '#16213e' : 'white',
+            marginTop: '16px'
+          }}
+          className="plaid-section"
+        >
+          <h3
+            style={{
+              ...styles.sectionTitle,
+              color: isDarkMode ? '#e0e0e0' : '#2c3e50'
+            }}
+          >
+            Bank Integration
+          </h3>
 
           {checkingAccount ? (
-            <div style={{ padding: '20px', textAlign: 'center' }}>
+            <div
+              style={{
+                padding: '20px',
+                textAlign: 'center',
+                color: isDarkMode ? '#e0e0e0' : '#333'
+              }}
+            >
               Loading...
             </div>
           ) : hasLinkedAccount ? (
@@ -212,7 +268,12 @@ export const Dashboard: React.FC = () => {
             </>
           ) : (
             <div style={styles.linkPrompt}>
-              <p style={styles.linkPromptText}>
+              <p
+                style={{
+                  ...styles.linkPromptText,
+                  color: isDarkMode ? '#b0b0b0' : '#666'
+                }}
+              >
                 Link your bank account to automatically import transactions.
               </p>
               <PlaidLinkButton onSuccess={handlePlaidLinkSuccess} />
@@ -224,12 +285,30 @@ export const Dashboard: React.FC = () => {
   )
 
   const renderAddTransactionView = () => (
-    <div style={styles.formContainer} className="form-container">
+    <div
+      style={{
+        ...styles.formContainer,
+        backgroundColor: isDarkMode ? '#16213e' : 'white',
+        color: isDarkMode ? '#e0e0e0' : '#333'
+      }}
+      className="form-container"
+    >
       <div style={styles.formHeader}>
-        <h2 style={styles.formTitle} className="form-title">
+        <h2
+          style={{
+            ...styles.formTitle,
+            color: isDarkMode ? '#e0e0e0' : '#2c3e50'
+          }}
+          className="form-title"
+        >
           Add New Transaction
         </h2>
-        <p style={styles.formSubtitle}>
+        <p
+          style={{
+            ...styles.formSubtitle,
+            color: isDarkMode ? '#b0b0b0' : '#666'
+          }}
+        >
           Record a manual transaction to track your spending
         </p>
       </div>
@@ -250,12 +329,30 @@ export const Dashboard: React.FC = () => {
   )
 
   const renderManageBudgetView = () => (
-    <div style={styles.formContainer} className="form-container">
+    <div
+      style={{
+        ...styles.formContainer,
+        backgroundColor: isDarkMode ? '#16213e' : 'white',
+        color: isDarkMode ? '#e0e0e0' : '#333'
+      }}
+      className="form-container"
+    >
       <div style={styles.formHeader}>
-        <h2 style={styles.formTitle} className="form-title">
+        <h2
+          style={{
+            ...styles.formTitle,
+            color: isDarkMode ? '#e0e0e0' : '#2c3e50'
+          }}
+          className="form-title"
+        >
           Manage Budget
         </h2>
-        <p style={styles.formSubtitle}>
+        <p
+          style={{
+            ...styles.formSubtitle,
+            color: isDarkMode ? '#b0b0b0' : '#666'
+          }}
+        >
           Set spending limits for categories or overall budget
         </p>
       </div>
@@ -276,7 +373,12 @@ export const Dashboard: React.FC = () => {
   )
 
   return (
-    <div style={styles.container}>
+    <div
+      style={{
+        ...styles.container,
+        backgroundColor: isDarkMode ? '#1a1a2e' : '#f5f5f5'
+      }}
+    >
       {renderNavigation()}
 
       <main style={styles.main}>
@@ -304,7 +406,7 @@ const styles = {
   nav: {
     backgroundColor: '#2c3e50',
     color: 'white',
-    padding: '16px 20px',
+    padding: '12px 16px',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
@@ -313,22 +415,26 @@ const styles = {
     top: 0,
     zIndex: 100,
     flexWrap: 'wrap' as const,
-    gap: '12px'
+    gap: '8px'
   },
   navBrand: {
-    fontSize: '20px',
+    fontSize: '18px',
     fontWeight: 700,
-    letterSpacing: '-0.5px'
+    letterSpacing: '-0.5px',
+    flexShrink: 0
   },
   navButtons: {
     display: 'flex',
-    gap: '6px',
-    flexWrap: 'wrap' as const
+    gap: '4px',
+    flexWrap: 'wrap' as const,
+    flex: '1 1 auto',
+    justifyContent: 'center' as const
   },
   navRight: {
     display: 'flex',
     alignItems: 'center',
-    gap: '12px'
+    gap: '8px',
+    flexShrink: 0
   },
   navUsername: {
     color: 'rgba(255,255,255,0.75)',
@@ -336,23 +442,24 @@ const styles = {
     display: 'none' as const
   },
   logoutButton: {
-    padding: '8px 16px',
+    padding: '8px 12px',
     backgroundColor: 'transparent',
     color: 'white',
     border: '1.5px solid rgba(255,255,255,0.5)',
     borderRadius: '8px',
     cursor: 'pointer',
-    fontSize: '13px',
+    fontSize: '12px',
     fontWeight: 600,
-    transition: 'all 0.2s ease'
+    transition: 'all 0.2s ease',
+    whiteSpace: 'nowrap' as const
   },
   navButton: {
     backgroundColor: 'transparent',
     color: 'rgba(255,255,255,0.85)',
     border: 'none',
     borderRadius: '8px',
-    padding: '10px 14px',
-    fontSize: '13px',
+    padding: '8px 10px',
+    fontSize: '12px',
     fontWeight: 600,
     cursor: 'pointer',
     transition: 'all 0.2s ease',
@@ -365,12 +472,12 @@ const styles = {
   main: {
     maxWidth: '1400px',
     margin: '0 auto',
-    padding: '20px 16px'
+    padding: '16px 12px'
   },
   dashboardGrid: {
     display: 'grid',
     gridTemplateColumns: '1fr',
-    gap: '24px'
+    gap: '16px'
   },
   mainColumn: {
     minWidth: 0
@@ -380,43 +487,44 @@ const styles = {
   },
   plaidSection: {
     backgroundColor: 'white',
-    padding: '20px',
+    padding: '16px',
     borderRadius: '8px',
     boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
     position: 'relative' as const
   },
   sectionTitle: {
     marginTop: 0,
-    marginBottom: '20px',
-    fontSize: '20px',
+    marginBottom: '16px',
+    fontSize: '18px',
     fontWeight: 600,
     color: '#2c3e50'
   },
   linkPrompt: {
     textAlign: 'center' as const,
-    padding: '20px'
+    padding: '16px'
   },
   linkPromptText: {
-    marginBottom: '20px',
+    marginBottom: '16px',
     color: '#666',
-    lineHeight: '1.5'
+    lineHeight: '1.5',
+    fontSize: '14px'
   },
   formContainer: {
     maxWidth: '700px',
     margin: '0 auto',
     backgroundColor: 'white',
-    padding: '24px 20px',
+    padding: '20px 16px',
     borderRadius: '12px',
     boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
   },
   formHeader: {
-    marginBottom: '28px',
-    paddingBottom: '20px',
+    marginBottom: '24px',
+    paddingBottom: '16px',
     borderBottom: '2px solid #f0f0f0'
   },
   formTitle: {
     margin: '0 0 8px 0',
-    fontSize: '24px',
+    fontSize: '22px',
     fontWeight: 700,
     color: '#2c3e50',
     letterSpacing: '-0.5px'
@@ -428,7 +536,7 @@ const styles = {
     lineHeight: '1.5'
   },
   backButton: {
-    marginTop: '32px',
+    marginTop: '24px',
     padding: '12px 24px',
     backgroundColor: '#6c757d',
     color: 'white',

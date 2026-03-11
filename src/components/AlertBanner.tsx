@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Alert } from '../types/alert'
 import { alertService } from '../services/alertService'
+import { useTheme } from '../contexts/ThemeContext'
 
 interface AlertBannerProps {
   refreshTrigger?: number
@@ -9,6 +10,7 @@ interface AlertBannerProps {
 export const AlertBanner: React.FC<AlertBannerProps> = ({
   refreshTrigger = 0
 }) => {
+  const { isDarkMode } = useTheme()
   const [alerts, setAlerts] = useState<Alert[]>([])
   const [unreadCount, setUnreadCount] = useState<number>(0)
   const [loading, setLoading] = useState(true)
@@ -50,14 +52,14 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({
       type === 'CRITICAL'
     ) {
       return {
-        backgroundColor: '#ffebee',
+        backgroundColor: isDarkMode ? '#3d1f1f' : '#ffebee',
         borderColor: '#f44336',
         iconColor: '#f44336',
         icon: '🚨'
       }
     } else {
       return {
-        backgroundColor: '#fff3e0',
+        backgroundColor: isDarkMode ? '#3d2a1f' : '#fff3e0',
         borderColor: '#ff9800',
         iconColor: '#ff9800',
         icon: '⚠️'

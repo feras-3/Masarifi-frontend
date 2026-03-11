@@ -1,6 +1,7 @@
 import React, { useState, ChangeEvent, FormEvent } from 'react'
 import { BudgetRequest, BudgetValidationErrors } from '../types/budget'
 import { Category } from '../types/transaction'
+import { useTheme } from '../contexts/ThemeContext'
 
 interface BudgetFormProps {
   onSubmit: (budget: BudgetRequest) => Promise<void>
@@ -13,6 +14,7 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({
   initialData,
   submitLabel = 'Set Budget'
 }) => {
+  const { isDarkMode } = useTheme()
   const [amount, setAmount] = useState<string>(
     initialData?.amount?.toString() || ''
   )
@@ -82,12 +84,13 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({
   const inputStyle: React.CSSProperties = {
     width: '100%',
     padding: '12px 14px',
-    border: '1.5px solid #e0e0e0',
+    border: `1.5px solid ${isDarkMode ? '#2c3e50' : '#e0e0e0'}`,
     borderRadius: '8px',
     fontSize: '14px',
     outline: 'none',
     boxSizing: 'border-box',
-    backgroundColor: 'white',
+    backgroundColor: isDarkMode ? '#0f3460' : 'white',
+    color: isDarkMode ? '#e0e0e0' : '#333',
     transition: 'border-color 0.2s ease'
   }
 
@@ -96,7 +99,7 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({
     marginBottom: '8px',
     fontSize: '14px',
     fontWeight: 600,
-    color: '#2c3e50'
+    color: isDarkMode ? '#e0e0e0' : '#2c3e50'
   }
 
   return (

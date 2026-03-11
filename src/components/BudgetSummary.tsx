@@ -10,6 +10,7 @@ import {
 import { BudgetStatus, BudgetRequest } from '../types/budget'
 import { budgetService } from '../services/budgetService'
 import { BudgetForm } from './BudgetForm'
+import { useTheme } from '../contexts/ThemeContext'
 
 interface BudgetSummaryProps {
   refreshTrigger?: number
@@ -18,6 +19,7 @@ interface BudgetSummaryProps {
 export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
   refreshTrigger = 0
 }) => {
+  const { isDarkMode } = useTheme()
   const [budgetStatuses, setBudgetStatuses] = useState<BudgetStatus[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -35,7 +37,6 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
       const statuses = await budgetService.getCurrentBudgetStatus()
       setBudgetStatuses(statuses)
     } catch (err: any) {
-      // If no budget exists, show a message instead of an error
       if (err.response?.status === 404) {
         setBudgetStatuses([])
         setError(null)
@@ -82,21 +83,31 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
       await fetchBudgetStatus()
       handleCloseEdit()
     } catch (err: any) {
-      throw err // Let BudgetForm handle the error display
+      throw err
     }
   }
 
   if (loading) {
-    return <div style={{ padding: '20px' }}>Loading budget status...</div>
+    return (
+      <div style={{ padding: '20px', color: isDarkMode ? '#e0e0e0' : '#333' }}>
+        Loading budget status...
+      </div>
+    )
   }
 
   if (error) {
-    return <div style={{ padding: '20px', color: 'red' }}>{error}</div>
+    return <div style={{ padding: '20px', color: '#f44336' }}>{error}</div>
   }
 
   if (budgetStatuses.length === 0) {
     return (
-      <div style={{ padding: '20px', textAlign: 'center', color: '#666' }}>
+      <div
+        style={{
+          padding: '20px',
+          textAlign: 'center',
+          color: isDarkMode ? '#b0b0b0' : '#666'
+        }}
+      >
         No budget set. Create a budget to start tracking your spending!
       </div>
     )
@@ -106,7 +117,6 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
     <>
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
         {budgetStatuses.map((budgetStatus) => {
-          // Determine if warning color should be displayed (spending exceeds 80%)
           const isWarning = budgetStatus.percentageUsed >= 80
           const remainingColor = isWarning ? '#ff9800' : '#4CAF50'
 
@@ -125,13 +135,14 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
           return (
             <div
               key={budgetStatus.budgetId}
+              className="budget-card"
               style={{
                 padding: '20px',
-                border: '1px solid #ddd',
+                border: `1px solid ${isDarkMode ? '#2c3e50' : '#ddd'}`,
                 borderRadius: '8px',
-                backgroundColor: '#f9f9f9',
+                backgroundColor: isDarkMode ? '#16213e' : '#f9f9f9',
                 flex: '1 1 320px',
-                minWidth: '320px'
+                minWidth: '300px'
               }}
             >
               <div
@@ -139,10 +150,17 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'flex-start',
-                  marginBottom: '4px'
+                  marginBottom: '8px'
                 }}
               >
-                <h2 style={{ marginTop: 0, marginBottom: 0 }}>
+                <h2
+                  style={{
+                    marginTop: 0,
+                    marginBottom: 0,
+                    fontSize: '20px',
+                    color: isDarkMode ? '#e0e0e0' : '#2c3e50'
+                  }}
+                >
                   {budgetStatus.category || 'General'} Budget
                 </h2>
                 <div style={{ display: 'flex', gap: '8px' }}>
@@ -199,7 +217,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
               <div
                 style={{
                   marginBottom: '16px',
-                  color: '#666',
+                  color: isDarkMode ? '#b0b0b0' : '#666',
                   fontSize: '14px'
                 }}
               >
@@ -209,21 +227,20 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
               <div
                 style={{
                   display: 'flex',
-                  alignItems: 'center',
-                  gap: '32px',
+                  alignItems: 'flex-start',
+                  gap: '24px',
                   flexWrap: 'wrap'
                 }}
               >
-                {/* Donut chart */}
-                <div style={{ width: 220, height: 220, flexShrink: 0 }}>
+                <div style={{ width: 200, height: 200, flexShrink: 0 }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
                         data={chartData}
                         cx="50%"
                         cy="50%"
-                        innerRadius={60}
-                        outerRadius={90}
+                        innerRadius={55}
+                        outerRadius={85}
                         startAngle={90}
                         endAngle={-270}
                         dataKey="value"
@@ -233,8 +250,10 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                         <Cell fill="#e0e0e0" />
                       </Pie>
                       <Tooltip
-                        formatter={(value: number | undefined) =>
-                          value !== undefined ? `$${value.toFixed(2)}` : ''
+                        formatter={(value: any) =>
+                          typeof value === 'number'
+                            ? `$${value.toFixed(2)}`
+                            : ''
                         }
                       />
                       <Legend />
@@ -242,28 +261,33 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                   </ResponsiveContainer>
                 </div>
 
-                {/* Stats */}
-                <div style={{ flex: 1, minWidth: '160px' }}>
-                  <div style={{ marginBottom: '12px' }}>
+                <div style={{ flex: 1, minWidth: '180px' }}>
+                  <div style={{ marginBottom: '14px' }}>
                     <div
                       style={{
                         fontSize: '13px',
-                        color: '#666',
-                        marginBottom: '2px'
+                        color: isDarkMode ? '#b0b0b0' : '#666',
+                        marginBottom: '4px'
                       }}
                     >
                       Budget
                     </div>
-                    <div style={{ fontSize: '22px', fontWeight: 'bold' }}>
+                    <div
+                      style={{
+                        fontSize: '22px',
+                        fontWeight: 'bold',
+                        color: isDarkMode ? '#e0e0e0' : '#2c3e50'
+                      }}
+                    >
                       ${budgetStatus.amount.toFixed(2)}
                     </div>
                   </div>
-                  <div style={{ marginBottom: '12px' }}>
+                  <div style={{ marginBottom: '14px' }}>
                     <div
                       style={{
                         fontSize: '13px',
-                        color: '#666',
-                        marginBottom: '2px'
+                        color: isDarkMode ? '#b0b0b0' : '#666',
+                        marginBottom: '4px'
                       }}
                     >
                       Spent
@@ -278,12 +302,12 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                       ${budgetStatus.spent.toFixed(2)}
                     </div>
                   </div>
-                  <div style={{ marginBottom: '12px' }}>
+                  <div style={{ marginBottom: '14px' }}>
                     <div
                       style={{
                         fontSize: '13px',
-                        color: '#666',
-                        marginBottom: '2px'
+                        color: isDarkMode ? '#b0b0b0' : '#666',
+                        marginBottom: '4px'
                       }}
                     >
                       Remaining
@@ -304,7 +328,6 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                 </div>
               </div>
 
-              {/* Warning message when exceeding 80% */}
               {isWarning && (
                 <div
                   style={{
@@ -315,7 +338,8 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                         : '#fff3e0',
                     border: `1px solid ${budgetStatus.percentageUsed >= 100 ? '#f44336' : '#ff9800'}`,
                     borderRadius: '4px',
-                    marginTop: '16px'
+                    marginTop: '16px',
+                    fontSize: '13px'
                   }}
                 >
                   <span
@@ -331,7 +355,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                       ? '⚠️ Budget Exceeded!'
                       : '⚠️ Warning!'}
                   </span>
-                  <span style={{ marginLeft: '10px' }}>
+                  <span style={{ marginLeft: '8px' }}>
                     {budgetStatus.percentageUsed >= 100
                       ? 'You have exceeded your budget.'
                       : 'You have used more than 80% of your budget.'}
@@ -343,7 +367,6 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
         })}
       </div>
 
-      {/* Edit Modal */}
       {editingBudgetId && editingBudget && (
         <div
           style={{
@@ -356,17 +379,19 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
             display: 'flex',
             justifyContent: 'center',
             alignItems: 'center',
-            zIndex: 1000
+            zIndex: 1000,
+            padding: '16px'
           }}
           onClick={handleCloseEdit}
         >
           <div
+            className="modal-content"
             style={{
-              backgroundColor: 'white',
-              padding: '30px',
+              backgroundColor: isDarkMode ? '#16213e' : 'white',
+              padding: '24px',
               borderRadius: '12px',
               maxWidth: '600px',
-              width: '90%',
+              width: '100%',
               maxHeight: '90vh',
               overflow: 'auto',
               boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)'
@@ -381,7 +406,11 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                 marginBottom: '20px'
               }}
             >
-              <h2 style={{ margin: 0 }}>Edit Budget</h2>
+              <h2
+                style={{ margin: 0, color: isDarkMode ? '#e0e0e0' : '#2c3e50' }}
+              >
+                Edit Budget
+              </h2>
               <button
                 onClick={handleCloseEdit}
                 style={{
@@ -389,7 +418,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({
                   border: 'none',
                   fontSize: '24px',
                   cursor: 'pointer',
-                  color: '#666',
+                  color: isDarkMode ? '#b0b0b0' : '#666',
                   padding: '0',
                   width: '30px',
                   height: '30px',
