@@ -177,6 +177,86 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit} style={{ width: '100%', margin: '0' }}>
+      {/* Category */}
+      <div style={{ marginBottom: '24px' }}>
+        <label htmlFor="category" style={labelStyle}>
+          Category <span style={{ color: '#f44336' }}>*</span>
+        </label>
+        <select
+          id="category"
+          value={formData.category}
+          onChange={handleCategoryChange}
+          style={{
+            ...inputStyle,
+            cursor: 'pointer',
+            appearance: 'none',
+            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'right 14px center',
+            paddingRight: '40px'
+          }}
+        >
+          {Object.values(Category).map((cat) => (
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Description */}
+      <div style={{ marginBottom: '24px' }}>
+        <label htmlFor="description" style={labelStyle}>
+          Description <span style={{ color: '#f44336' }}>*</span>
+        </label>
+        <input
+          id="description"
+          type="text"
+          value={formData.description}
+          onChange={handleDescriptionChange}
+          maxLength={200}
+          placeholder="e.g., Grocery shopping at Whole Foods"
+          style={{
+            ...inputStyle,
+            borderColor: errors.description
+              ? '#f44336'
+              : isDarkMode
+                ? '#2c3e50'
+                : '#e0e0e0'
+          }}
+          onFocus={(e) =>
+            (e.currentTarget.style.borderColor = errors.description
+              ? '#f44336'
+              : '#2c3e50')
+          }
+          onBlur={(e) =>
+            (e.currentTarget.style.borderColor = errors.description
+              ? '#f44336'
+              : isDarkMode
+                ? '#2c3e50'
+                : '#e0e0e0')
+          }
+        />
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            marginTop: '6px'
+          }}
+        >
+          {errors.description ? (
+            <span style={{ color: '#f44336', fontSize: '13px' }}>
+              {errors.description}
+            </span>
+          ) : (
+            <span></span>
+          )}
+          <span style={{ fontSize: '12px', color: '#999' }}>
+            {formData.description.length}/200
+          </span>
+        </div>
+      </div>
+
       {/* Amount */}
       <div style={{ marginBottom: '24px' }}>
         <label htmlFor="amount" style={labelStyle}>
@@ -206,7 +286,11 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
             style={{
               ...inputStyle,
               paddingLeft: '32px',
-              borderColor: errors.amount ? '#f44336' : '#e0e0e0'
+              borderColor: errors.amount
+                ? '#f44336'
+                : isDarkMode
+                  ? '#2c3e50'
+                  : '#e0e0e0'
             }}
             onFocus={(e) =>
               (e.currentTarget.style.borderColor = errors.amount
@@ -216,7 +300,9 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
             onBlur={(e) =>
               (e.currentTarget.style.borderColor = errors.amount
                 ? '#f44336'
-                : '#e0e0e0')
+                : isDarkMode
+                  ? '#2c3e50'
+                  : '#e0e0e0')
             }
           />
         </div>
@@ -235,7 +321,7 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
       </div>
 
       {/* Date */}
-      <div style={{ marginBottom: '24px' }}>
+      <div style={{ marginBottom: '28px' }}>
         <label htmlFor="date" style={labelStyle}>
           Date <span style={{ color: '#f44336' }}>*</span>
         </label>
@@ -246,7 +332,11 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
           onChange={handleDateChange}
           style={{
             ...inputStyle,
-            borderColor: errors.date ? '#f44336' : '#e0e0e0'
+            borderColor: errors.date
+              ? '#f44336'
+              : isDarkMode
+                ? '#2c3e50'
+                : '#e0e0e0'
           }}
           onFocus={(e) =>
             (e.currentTarget.style.borderColor = errors.date
@@ -256,7 +346,9 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
           onBlur={(e) =>
             (e.currentTarget.style.borderColor = errors.date
               ? '#f44336'
-              : '#e0e0e0')
+              : isDarkMode
+                ? '#2c3e50'
+                : '#e0e0e0')
           }
         />
         {errors.date && (
@@ -271,80 +363,6 @@ export const TransactionForm: React.FC<TransactionFormProps> = ({
             {errors.date}
           </span>
         )}
-      </div>
-
-      {/* Description */}
-      <div style={{ marginBottom: '24px' }}>
-        <label htmlFor="description" style={labelStyle}>
-          Description <span style={{ color: '#f44336' }}>*</span>
-        </label>
-        <input
-          id="description"
-          type="text"
-          value={formData.description}
-          onChange={handleDescriptionChange}
-          maxLength={200}
-          placeholder="e.g., Grocery shopping at Whole Foods"
-          style={{
-            ...inputStyle,
-            borderColor: errors.description ? '#f44336' : '#e0e0e0'
-          }}
-          onFocus={(e) =>
-            (e.currentTarget.style.borderColor = errors.description
-              ? '#f44336'
-              : '#2c3e50')
-          }
-          onBlur={(e) =>
-            (e.currentTarget.style.borderColor = errors.description
-              ? '#f44336'
-              : '#e0e0e0')
-          }
-        />
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginTop: '6px'
-          }}
-        >
-          {errors.description ? (
-            <span style={{ color: '#f44336', fontSize: '13px' }}>
-              {errors.description}
-            </span>
-          ) : (
-            <span></span>
-          )}
-          <span style={{ fontSize: '12px', color: '#999' }}>
-            {formData.description.length}/200
-          </span>
-        </div>
-      </div>
-
-      {/* Category */}
-      <div style={{ marginBottom: '28px' }}>
-        <label htmlFor="category" style={labelStyle}>
-          Category <span style={{ color: '#f44336' }}>*</span>
-        </label>
-        <select
-          id="category"
-          value={formData.category}
-          onChange={handleCategoryChange}
-          style={{
-            ...inputStyle,
-            cursor: 'pointer',
-            appearance: 'none',
-            backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E")`,
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: 'right 14px center',
-            paddingRight: '40px'
-          }}
-        >
-          {Object.values(Category).map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
-            </option>
-          ))}
-        </select>
       </div>
 
       {/* Success Message */}
