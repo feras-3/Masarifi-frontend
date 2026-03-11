@@ -1,113 +1,127 @@
-import React, { useState, useEffect } from 'react';
-import { BudgetSummary } from './BudgetSummary';
-import { AlertBanner } from './AlertBanner';
-import { TransactionList } from './TransactionList';
-import PlaidAccountStatus from './PlaidAccountStatus';
-import PlaidLinkButton from './PlaidLinkButton';
-import SyncTransactionsButton from './SyncTransactionsButton';
-import { TransactionForm } from './TransactionForm';
-import { BudgetForm } from './BudgetForm';
-import { TransactionEditModal } from './TransactionEditModal';
-import { Transaction, TransactionRequest } from '../types/transaction';
-import { BudgetRequest } from '../types/budget';
-import { transactionService } from '../services/transactionService';
-import { budgetService } from '../services/budgetService';
-import plaidService from '../services/plaidService';
-import { useAuth } from '../contexts/AuthContext';
+import React, { useState, useEffect } from 'react'
+import { BudgetSummary } from './BudgetSummary'
+import { AlertBanner } from './AlertBanner'
+import { TransactionList } from './TransactionList'
+import PlaidAccountStatus from './PlaidAccountStatus'
+import PlaidLinkButton from './PlaidLinkButton'
+import SyncTransactionsButton from './SyncTransactionsButton'
+import { TransactionForm } from './TransactionForm'
+import { BudgetForm } from './BudgetForm'
+import { TransactionEditModal } from './TransactionEditModal'
+import { SpendingTrendsChart } from './SpendingTrendsChart'
+import { CategoryBreakdownChart } from './CategoryBreakdownChart'
+import { BudgetInsightsWidget } from './BudgetInsightsWidget'
+import { Transaction, TransactionRequest } from '../types/transaction'
+import { BudgetRequest } from '../types/budget'
+import { transactionService } from '../services/transactionService'
+import { budgetService } from '../services/budgetService'
+import plaidService from '../services/plaidService'
+import { useAuth } from '../contexts/AuthContext'
+import { useTheme } from '../contexts/ThemeContext'
 
-type View = 'dashboard' | 'add-transaction' | 'manage-budget';
+type View = 'dashboard' | 'add-transaction' | 'manage-budget'
 
 export const Dashboard: React.FC = () => {
-  const { logout, username } = useAuth();
-  const [currentView, setCurrentView] = useState<View>('dashboard');
-  const [refreshTrigger, setRefreshTrigger] = useState(0);
-  const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
-  const [hasLinkedAccount, setHasLinkedAccount] = useState(false);
-  const [checkingAccount, setCheckingAccount] = useState(true);
+  const { logout, username } = useAuth()
+  const { isDarkMode, toggleDarkMode } = useTheme()
+  const [currentView, setCurrentView] = useState<View>('dashboard')
+  const [refreshTrigger, setRefreshTrigger] = useState(0)
+  const [editingTransaction, setEditingTransaction] =
+    useState<Transaction | null>(null)
+  const [hasLinkedAccount, setHasLinkedAccount] = useState(false)
+  const [checkingAccount, setCheckingAccount] = useState(true)
 
   useEffect(() => {
-    checkLinkedAccount();
-  }, []);
+    checkLinkedAccount()
+  }, [])
 
   const checkLinkedAccount = async () => {
     try {
-      const response = await plaidService.getLinkedAccounts();
-      setHasLinkedAccount(response.linked);
+      const response = await plaidService.getLinkedAccounts()
+      setHasLinkedAccount(response.linked)
     } catch (err) {
-      console.error('Error checking linked accounts:', err);
-      setHasLinkedAccount(false);
+      console.error('Error checking linked accounts:', err)
+      setHasLinkedAccount(false)
     } finally {
-      setCheckingAccount(false);
+      setCheckingAccount(false)
     }
-  };
+  }
 
   const handleRefresh = () => {
-    setRefreshTrigger(prev => prev + 1);
-  };
+    setRefreshTrigger((prev) => prev + 1)
+  }
 
   const handleTransactionSubmit = async (request: TransactionRequest) => {
-    await transactionService.createTransaction(request);
-    handleRefresh();
-    setCurrentView('dashboard');
-  };
+    await transactionService.createTransaction(request)
+    handleRefresh()
+    setCurrentView('dashboard')
+  }
 
   const handleBudgetSubmit = async (request: BudgetRequest) => {
-    await budgetService.createBudget(request);
-    handleRefresh();
-    setCurrentView('dashboard');
-  };
+    await budgetService.createBudget(request)
+    handleRefresh()
+    setCurrentView('dashboard')
+  }
 
   const handleEdit = (transaction: Transaction) => {
-    setEditingTransaction(transaction);
-  };
+    setEditingTransaction(transaction)
+  }
 
   const handleDelete = async (id: string) => {
     try {
-      await transactionService.deleteTransaction(id);
-      handleRefresh();
+      await transactionService.deleteTransaction(id)
+      handleRefresh()
     } catch (err) {
-      console.error('Error deleting transaction:', err);
-      throw err;
+      console.error('Error deleting transaction:', err)
+      throw err
     }
-  };
+  }
 
   const handleEditSave = async (id: string, data: TransactionRequest) => {
-    await transactionService.updateTransaction(id, data);
-    setEditingTransaction(null);
-    handleRefresh();
-  };
+    await transactionService.updateTransaction(id, data)
+    setEditingTransaction(null)
+    handleRefresh()
+  }
 
   const handleEditClose = () => {
-    setEditingTransaction(null);
-  };
+    setEditingTransaction(null)
+  }
 
   const handlePlaidLinkSuccess = () => {
-    setHasLinkedAccount(true);
-    handleRefresh();
-  };
+    setHasLinkedAccount(true)
+    handleRefresh()
+  }
 
   const handleUnlink = () => {
-    setHasLinkedAccount(false);
-    handleRefresh();
-  };
+    setHasLinkedAccount(false)
+    handleRefresh()
+  }
 
   const handleSyncComplete = (newCount: number) => {
     if (newCount > 0) {
-      handleRefresh();
+      handleRefresh()
     }
-  };
+  }
 
   const renderNavigation = () => (
     <nav style={styles.nav}>
-      <div style={styles.navBrand}>
-        💰 Expense Tracker
-      </div>
+      <div style={styles.navBrand}>💰 Expense Tracker</div>
       <div style={styles.navButtons}>
         <button
           onClick={() => setCurrentView('dashboard')}
           style={{
             ...styles.navButton,
             ...(currentView === 'dashboard' ? styles.navButtonActive : {})
+          }}
+          onMouseEnter={(e) => {
+            if (currentView !== 'dashboard') {
+              e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (currentView !== 'dashboard') {
+              e.currentTarget.style.backgroundColor = 'transparent'
+            }
           }}
         >
           Dashboard
@@ -118,6 +132,16 @@ export const Dashboard: React.FC = () => {
             ...styles.navButton,
             ...(currentView === 'add-transaction' ? styles.navButtonActive : {})
           }}
+          onMouseEnter={(e) => {
+            if (currentView !== 'add-transaction') {
+              e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (currentView !== 'add-transaction') {
+              e.currentTarget.style.backgroundColor = 'transparent'
+            }
+          }}
         >
           Add Transaction
         </button>
@@ -127,29 +151,71 @@ export const Dashboard: React.FC = () => {
             ...styles.navButton,
             ...(currentView === 'manage-budget' ? styles.navButtonActive : {})
           }}
+          onMouseEnter={(e) => {
+            if (currentView !== 'manage-budget') {
+              e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
+            }
+          }}
+          onMouseLeave={(e) => {
+            if (currentView !== 'manage-budget') {
+              e.currentTarget.style.backgroundColor = 'transparent'
+            }
+          }}
         >
           Manage Budget
         </button>
       </div>
       <div style={styles.navRight}>
-        {username && (
-          <span style={styles.navUsername}>👤 {username}</span>
-        )}
-        <button onClick={logout} style={styles.logoutButton}>
+        <span style={styles.navUsername} className="nav-username">
+          👤 {username}
+        </span>
+        <button
+          onClick={toggleDarkMode}
+          aria-label="Toggle dark mode"
+          style={{
+            ...styles.logoutButton,
+            padding: '8px 12px'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
+            e.currentTarget.style.borderColor = 'white'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'transparent'
+            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.5)'
+          }}
+        >
+          {isDarkMode ? '☀️' : '🌙'}
+        </button>
+        <button
+          onClick={logout}
+          style={styles.logoutButton}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.1)'
+            e.currentTarget.style.borderColor = 'white'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = 'transparent'
+            e.currentTarget.style.borderColor = 'rgba(255,255,255,0.5)'
+          }}
+        >
           Logout
         </button>
       </div>
     </nav>
-  );
+  )
 
   const renderDashboardView = () => (
-    <div style={styles.dashboardGrid}>
-      {/* Left Column - Main Content */}
+    <div style={styles.dashboardGrid} className="dashboard-grid">
       <div style={styles.mainColumn}>
         <AlertBanner refreshTrigger={refreshTrigger} />
-        
         <BudgetSummary refreshTrigger={refreshTrigger} />
-        
+
+        {/* Spending Trends - Full Width */}
+        <div style={{ marginBottom: '16px' }}>
+          <SpendingTrendsChart refreshTrigger={refreshTrigger} />
+        </div>
+
         <TransactionList
           onEdit={handleEdit}
           onDelete={handleDelete}
@@ -157,13 +223,39 @@ export const Dashboard: React.FC = () => {
         />
       </div>
 
-      {/* Right Column - Plaid Integration */}
       <div style={styles.sideColumn}>
-        <div style={styles.plaidSection}>
-          <h3 style={styles.sectionTitle}>Bank Integration</h3>
-          
+        <BudgetInsightsWidget refreshTrigger={refreshTrigger} />
+
+        {/* Category Breakdown in Sidebar */}
+        <div style={{ marginTop: '16px' }}>
+          <CategoryBreakdownChart refreshTrigger={refreshTrigger} />
+        </div>
+
+        <div
+          style={{
+            ...styles.plaidSection,
+            backgroundColor: isDarkMode ? '#16213e' : 'white',
+            marginTop: '16px'
+          }}
+          className="plaid-section"
+        >
+          <h3
+            style={{
+              ...styles.sectionTitle,
+              color: isDarkMode ? '#e0e0e0' : '#2c3e50'
+            }}
+          >
+            Bank Integration
+          </h3>
+
           {checkingAccount ? (
-            <div style={{ padding: '20px', textAlign: 'center' }}>
+            <div
+              style={{
+                padding: '20px',
+                textAlign: 'center',
+                color: isDarkMode ? '#e0e0e0' : '#333'
+              }}
+            >
               Loading...
             </div>
           ) : hasLinkedAccount ? (
@@ -176,7 +268,12 @@ export const Dashboard: React.FC = () => {
             </>
           ) : (
             <div style={styles.linkPrompt}>
-              <p style={styles.linkPromptText}>
+              <p
+                style={{
+                  ...styles.linkPromptText,
+                  color: isDarkMode ? '#b0b0b0' : '#666'
+                }}
+              >
                 Link your bank account to automatically import transactions.
               </p>
               <PlaidLinkButton onSuccess={handlePlaidLinkSuccess} />
@@ -185,38 +282,105 @@ export const Dashboard: React.FC = () => {
         </div>
       </div>
     </div>
-  );
+  )
 
   const renderAddTransactionView = () => (
-    <div style={styles.formContainer}>
-      <h2>Add New Transaction</h2>
+    <div
+      style={{
+        ...styles.formContainer,
+        backgroundColor: isDarkMode ? '#16213e' : 'white',
+        color: isDarkMode ? '#e0e0e0' : '#333'
+      }}
+      className="form-container"
+    >
+      <div style={styles.formHeader}>
+        <h2
+          style={{
+            ...styles.formTitle,
+            color: isDarkMode ? '#e0e0e0' : '#2c3e50'
+          }}
+          className="form-title"
+        >
+          Add New Transaction
+        </h2>
+        <p
+          style={{
+            ...styles.formSubtitle,
+            color: isDarkMode ? '#b0b0b0' : '#666'
+          }}
+        >
+          Record a manual transaction to track your spending
+        </p>
+      </div>
       <TransactionForm onSubmit={handleTransactionSubmit} />
       <button
         onClick={() => setCurrentView('dashboard')}
         style={styles.backButton}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = '#5a6268'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = '#6c757d'
+        }}
       >
         ← Back to Dashboard
       </button>
     </div>
-  );
+  )
 
   const renderManageBudgetView = () => (
-    <div style={styles.formContainer}>
-      <h2>Manage Budget</h2>
+    <div
+      style={{
+        ...styles.formContainer,
+        backgroundColor: isDarkMode ? '#16213e' : 'white',
+        color: isDarkMode ? '#e0e0e0' : '#333'
+      }}
+      className="form-container"
+    >
+      <div style={styles.formHeader}>
+        <h2
+          style={{
+            ...styles.formTitle,
+            color: isDarkMode ? '#e0e0e0' : '#2c3e50'
+          }}
+          className="form-title"
+        >
+          Manage Budget
+        </h2>
+        <p
+          style={{
+            ...styles.formSubtitle,
+            color: isDarkMode ? '#b0b0b0' : '#666'
+          }}
+        >
+          Set spending limits for categories or overall budget
+        </p>
+      </div>
       <BudgetForm onSubmit={handleBudgetSubmit} />
       <button
         onClick={() => setCurrentView('dashboard')}
         style={styles.backButton}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.backgroundColor = '#5a6268'
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.backgroundColor = '#6c757d'
+        }}
       >
         ← Back to Dashboard
       </button>
     </div>
-  );
+  )
 
   return (
-    <div style={styles.container}>
+    <div
+      style={{
+        ...styles.container,
+        backgroundColor: isDarkMode ? '#1a1a2e' : '#f5f5f5'
+      }}
+    >
       {renderNavigation()}
-      
+
       <main style={styles.main}>
         {currentView === 'dashboard' && renderDashboardView()}
         {currentView === 'add-transaction' && renderAddTransactionView()}
@@ -231,8 +395,8 @@ export const Dashboard: React.FC = () => {
         />
       )}
     </div>
-  );
-};
+  )
+}
 
 const styles = {
   container: {
@@ -242,64 +406,78 @@ const styles = {
   nav: {
     backgroundColor: '#2c3e50',
     color: 'white',
-    padding: '15px 30px',
+    padding: '12px 16px',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+    position: 'sticky' as const,
+    top: 0,
+    zIndex: 100,
+    flexWrap: 'wrap' as const,
+    gap: '8px'
   },
   navBrand: {
-    fontSize: '24px',
-    fontWeight: 'bold'
+    fontSize: '18px',
+    fontWeight: 700,
+    letterSpacing: '-0.5px',
+    flexShrink: 0
   },
   navButtons: {
     display: 'flex',
-    gap: '10px'
+    gap: '4px',
+    flexWrap: 'wrap' as const,
+    flex: '1 1 auto',
+    justifyContent: 'center' as const
   },
   navRight: {
     display: 'flex',
     alignItems: 'center',
-    gap: '12px'
+    gap: '8px',
+    flexShrink: 0
   },
   navUsername: {
     color: 'rgba(255,255,255,0.75)',
-    fontSize: '14px'
+    fontSize: '14px',
+    display: 'none' as const
   },
   logoutButton: {
-    padding: '7px 16px',
+    padding: '8px 12px',
     backgroundColor: 'transparent',
     color: 'white',
-    border: '1px solid rgba(255,255,255,0.5)',
-    borderRadius: '4px',
+    border: '1.5px solid rgba(255,255,255,0.5)',
+    borderRadius: '8px',
     cursor: 'pointer',
-    fontSize: '14px',
+    fontSize: '12px',
     fontWeight: 600,
-    transition: 'all 0.2s'
+    transition: 'all 0.2s ease',
+    whiteSpace: 'nowrap' as const
   },
   navButton: {
     backgroundColor: 'transparent',
-    color: 'white',
-    border: '2px solid transparent',
-    borderRadius: '4px',
-    padding: '8px 16px',
-    fontSize: '14px',
+    color: 'rgba(255,255,255,0.85)',
+    border: 'none',
+    borderRadius: '8px',
+    padding: '8px 10px',
+    fontSize: '12px',
     fontWeight: 600,
     cursor: 'pointer',
-    transition: 'all 0.2s'
+    transition: 'all 0.2s ease',
+    whiteSpace: 'nowrap' as const
   },
   navButtonActive: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderColor: 'white'
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    color: 'white'
   },
   main: {
     maxWidth: '1400px',
     margin: '0 auto',
-    padding: '30px 20px'
+    padding: '16px 12px'
   },
   dashboardGrid: {
     display: 'grid',
-    gridTemplateColumns: '1fr 400px',
-    gap: '30px'
+    gridTemplateColumns: '1fr',
+    gap: '16px'
   },
   mainColumn: {
     minWidth: 0
@@ -309,47 +487,68 @@ const styles = {
   },
   plaidSection: {
     backgroundColor: 'white',
-    padding: '20px',
+    padding: '16px',
     borderRadius: '8px',
     boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    position: 'sticky' as const,
-    top: '20px'
+    position: 'relative' as const
   },
   sectionTitle: {
     marginTop: 0,
-    marginBottom: '20px',
-    fontSize: '20px',
+    marginBottom: '16px',
+    fontSize: '18px',
     fontWeight: 600,
     color: '#2c3e50'
   },
   linkPrompt: {
     textAlign: 'center' as const,
-    padding: '20px'
+    padding: '16px'
   },
   linkPromptText: {
-    marginBottom: '20px',
+    marginBottom: '16px',
+    color: '#666',
+    lineHeight: '1.5',
+    fontSize: '14px'
+  },
+  formContainer: {
+    maxWidth: '700px',
+    margin: '0 auto',
+    backgroundColor: 'white',
+    padding: '20px 16px',
+    borderRadius: '12px',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
+  },
+  formHeader: {
+    marginBottom: '24px',
+    paddingBottom: '16px',
+    borderBottom: '2px solid #f0f0f0'
+  },
+  formTitle: {
+    margin: '0 0 8px 0',
+    fontSize: '22px',
+    fontWeight: 700,
+    color: '#2c3e50',
+    letterSpacing: '-0.5px'
+  },
+  formSubtitle: {
+    margin: 0,
+    fontSize: '14px',
     color: '#666',
     lineHeight: '1.5'
   },
-  formContainer: {
-    maxWidth: '600px',
-    margin: '0 auto',
-    backgroundColor: 'white',
-    padding: '30px',
-    borderRadius: '8px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-  },
   backButton: {
-    marginTop: '20px',
-    padding: '10px 20px',
+    marginTop: '24px',
+    padding: '12px 24px',
     backgroundColor: '#6c757d',
     color: 'white',
     border: 'none',
-    borderRadius: '4px',
+    borderRadius: '8px',
     cursor: 'pointer',
     fontSize: '14px',
-    fontWeight: 600
+    fontWeight: 600,
+    transition: 'all 0.2s ease',
+    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+    width: '100%'
   }
-};
+}
 
-export default Dashboard;
+export default Dashboard

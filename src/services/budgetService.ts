@@ -28,5 +28,11 @@ export const budgetService = {
   updateBudget: async (id: string, amount: number): Promise<Budget> => {
     const response = await apiClient.put<Budget>(`/api/budgets/${id}`, { amount });
     return response.data;
+  },
+
+  // Delete a budget
+  // DELETE /api/budgets/{id}
+  deleteBudget: async (id: string): Promise<void> => {
+    await apiClient.delete(`/api/budgets/${id}`);
   }
 };
