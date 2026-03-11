@@ -161,7 +161,9 @@ export const Dashboard: React.FC = () => {
         </button>
       </div>
       <div style={styles.navRight}>
-        {username && <span style={styles.navUsername}>👤 {username}</span>}
+        <span style={styles.navUsername} className="nav-username">
+          👤 {username}
+        </span>
         <button
           onClick={logout}
           style={styles.logoutButton}
@@ -181,13 +183,10 @@ export const Dashboard: React.FC = () => {
   )
 
   const renderDashboardView = () => (
-    <div style={styles.dashboardGrid}>
-      {/* Left Column - Main Content */}
+    <div style={styles.dashboardGrid} className="dashboard-grid">
       <div style={styles.mainColumn}>
         <AlertBanner refreshTrigger={refreshTrigger} />
-
         <BudgetSummary refreshTrigger={refreshTrigger} />
-
         <TransactionList
           onEdit={handleEdit}
           onDelete={handleDelete}
@@ -195,9 +194,8 @@ export const Dashboard: React.FC = () => {
         />
       </div>
 
-      {/* Right Column - Plaid Integration */}
       <div style={styles.sideColumn}>
-        <div style={styles.plaidSection}>
+        <div style={styles.plaidSection} className="plaid-section">
           <h3 style={styles.sectionTitle}>Bank Integration</h3>
 
           {checkingAccount ? (
@@ -226,9 +224,11 @@ export const Dashboard: React.FC = () => {
   )
 
   const renderAddTransactionView = () => (
-    <div style={styles.formContainer}>
+    <div style={styles.formContainer} className="form-container">
       <div style={styles.formHeader}>
-        <h2 style={styles.formTitle}>Add New Transaction</h2>
+        <h2 style={styles.formTitle} className="form-title">
+          Add New Transaction
+        </h2>
         <p style={styles.formSubtitle}>
           Record a manual transaction to track your spending
         </p>
@@ -250,9 +250,11 @@ export const Dashboard: React.FC = () => {
   )
 
   const renderManageBudgetView = () => (
-    <div style={styles.formContainer}>
+    <div style={styles.formContainer} className="form-container">
       <div style={styles.formHeader}>
-        <h2 style={styles.formTitle}>Manage Budget</h2>
+        <h2 style={styles.formTitle} className="form-title">
+          Manage Budget
+        </h2>
         <p style={styles.formSubtitle}>
           Set spending limits for categories or overall budget
         </p>
@@ -302,23 +304,26 @@ const styles = {
   nav: {
     backgroundColor: '#2c3e50',
     color: 'white',
-    padding: '16px 32px',
+    padding: '16px 20px',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
     boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
     position: 'sticky' as const,
     top: 0,
-    zIndex: 100
+    zIndex: 100,
+    flexWrap: 'wrap' as const,
+    gap: '12px'
   },
   navBrand: {
-    fontSize: '22px',
+    fontSize: '20px',
     fontWeight: 700,
     letterSpacing: '-0.5px'
   },
   navButtons: {
     display: 'flex',
-    gap: '10px'
+    gap: '6px',
+    flexWrap: 'wrap' as const
   },
   navRight: {
     display: 'flex',
@@ -327,16 +332,17 @@ const styles = {
   },
   navUsername: {
     color: 'rgba(255,255,255,0.75)',
-    fontSize: '14px'
+    fontSize: '14px',
+    display: 'none' as const
   },
   logoutButton: {
-    padding: '8px 18px',
+    padding: '8px 16px',
     backgroundColor: 'transparent',
     color: 'white',
     border: '1.5px solid rgba(255,255,255,0.5)',
     borderRadius: '8px',
     cursor: 'pointer',
-    fontSize: '14px',
+    fontSize: '13px',
     fontWeight: 600,
     transition: 'all 0.2s ease'
   },
@@ -345,12 +351,12 @@ const styles = {
     color: 'rgba(255,255,255,0.85)',
     border: 'none',
     borderRadius: '8px',
-    padding: '10px 18px',
-    fontSize: '14px',
+    padding: '10px 14px',
+    fontSize: '13px',
     fontWeight: 600,
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    position: 'relative' as const
+    whiteSpace: 'nowrap' as const
   },
   navButtonActive: {
     backgroundColor: 'rgba(255, 255, 255, 0.15)',
@@ -359,12 +365,12 @@ const styles = {
   main: {
     maxWidth: '1400px',
     margin: '0 auto',
-    padding: '30px 20px'
+    padding: '20px 16px'
   },
   dashboardGrid: {
     display: 'grid',
-    gridTemplateColumns: '1fr 400px',
-    gap: '30px'
+    gridTemplateColumns: '1fr',
+    gap: '24px'
   },
   mainColumn: {
     minWidth: 0
@@ -377,8 +383,7 @@ const styles = {
     padding: '20px',
     borderRadius: '8px',
     boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    position: 'sticky' as const,
-    top: '20px'
+    position: 'relative' as const
   },
   sectionTitle: {
     marginTop: 0,
@@ -400,25 +405,25 @@ const styles = {
     maxWidth: '700px',
     margin: '0 auto',
     backgroundColor: 'white',
-    padding: '40px',
+    padding: '24px 20px',
     borderRadius: '12px',
     boxShadow: '0 2px 8px rgba(0,0,0,0.08)'
   },
   formHeader: {
-    marginBottom: '32px',
-    paddingBottom: '24px',
+    marginBottom: '28px',
+    paddingBottom: '20px',
     borderBottom: '2px solid #f0f0f0'
   },
   formTitle: {
     margin: '0 0 8px 0',
-    fontSize: '28px',
+    fontSize: '24px',
     fontWeight: 700,
     color: '#2c3e50',
     letterSpacing: '-0.5px'
   },
   formSubtitle: {
     margin: 0,
-    fontSize: '15px',
+    fontSize: '14px',
     color: '#666',
     lineHeight: '1.5'
   },
@@ -433,7 +438,8 @@ const styles = {
     fontSize: '14px',
     fontWeight: 600,
     transition: 'all 0.2s ease',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
+    boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+    width: '100%'
   }
 }
 

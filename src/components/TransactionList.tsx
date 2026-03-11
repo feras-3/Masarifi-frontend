@@ -273,13 +273,15 @@ export const TransactionList: React.FC<TransactionListProps> = ({
           borderRadius: '12px',
           border: '1px solid #e0e0e0',
           backgroundColor: 'white',
-          boxShadow: '0 1px 3px rgba(0,0,0,0.05)'
+          boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+          WebkitOverflowScrolling: 'touch'
         }}
       >
         <table
           style={{
             width: '100%',
-            borderCollapse: 'collapse'
+            borderCollapse: 'collapse',
+            minWidth: '600px'
           }}
         >
           <thead>

@@ -37,6 +37,26 @@
       #root {
         min-height: 100vh;
       }
+
+      /* Responsive Grid */
+      @media (min-width: 1024px) {
+        .dashboard-grid {
+          grid-template-columns: 1fr 400px !important;
+        }
+        .nav-username {
+          display: inline !important;
+        }
+        .form-container {
+          padding: 40px !important;
+        }
+        .form-title {
+          font-size: 28px !important;
+        }
+        .plaid-section {
+          position: sticky !important;
+          top: 100px !important;
+        }
+      }
     </style>
   </head>
   <body>
