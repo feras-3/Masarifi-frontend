@@ -28,7 +28,7 @@ export const PlaidAccountStatus: React.FC<PlaidAccountStatusProps> = ({
       setLoading(true);
       setError(null);
       const response = await plaidService.getLinkedAccounts();
-      setAccounts(response.accounts);
+      setAccounts(response.accounts.filter(a => a.isActive));
       setLinked(response.linked);
     } catch (err: any) {
       setError('Failed to load linked accounts. Please try again.');
@@ -67,7 +67,9 @@ export const PlaidAccountStatus: React.FC<PlaidAccountStatusProps> = ({
     return <ErrorMessage error={error} />;
   }
 
-  if (!linked || accounts.length === 0) {
+  const activeAccounts = accounts.filter(a => a.isActive);
+
+  if (!linked || activeAccounts.length === 0) {
     return null;
   }
 
@@ -75,7 +77,7 @@ export const PlaidAccountStatus: React.FC<PlaidAccountStatusProps> = ({
     <div style={styles.container}>
       <h3 style={styles.title}>Linked Bank Accounts</h3>
       
-      {accounts.map(account => (
+      {activeAccounts.map(account => (
         <div key={account.id} style={styles.accountCard}>
           <div style={styles.accountInfo}>
             <div style={styles.institutionName}>
@@ -104,16 +106,6 @@ export const PlaidAccountStatus: React.FC<PlaidAccountStatusProps> = ({
               </div>
             )}
             
-            <div style={styles.accountDetail}>
-              <strong>Status:</strong>{' '}
-              <span style={{
-                ...styles.statusBadge,
-                backgroundColor: account.isActive ? '#d4edda' : '#f8d7da',
-                color: account.isActive ? '#155724' : '#721c24'
-              }}>
-                {account.isActive ? 'Active' : 'Inactive'}
-              </span>
-            </div>
           </div>
           
           <button
