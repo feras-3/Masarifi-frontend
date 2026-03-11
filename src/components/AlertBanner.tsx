@@ -10,7 +10,6 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({ refreshTrigger = 0 }) 
   const [alerts, setAlerts] = useState<Alert[]>([]);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchAlerts();
@@ -19,14 +18,12 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({ refreshTrigger = 0 }) 
   const fetchAlerts = async () => {
     try {
       setLoading(true);
-      setError(null);
       const response = await alertService.getAlerts();
       // Filter to show only non-dismissed alerts
       const activeAlerts = response.filter(alert => !alert.dismissed);
       setAlerts(activeAlerts);
       setUnreadCount(activeAlerts.length);
     } catch (err: any) {
-      setError('Failed to load alerts. Please try again.');
       console.error('Error fetching alerts:', err);
     } finally {
       setLoading(false);
@@ -42,7 +39,6 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({ refreshTrigger = 0 }) 
       setUnreadCount(prevCount => Math.max(0, prevCount - 1));
     } catch (err: any) {
       console.error('Error dismissing alert:', err);
-      setError('Failed to dismiss alert. Please try again.');
     }
   };
 
@@ -66,14 +62,6 @@ export const AlertBanner: React.FC<AlertBannerProps> = ({ refreshTrigger = 0 }) 
 
   if (loading) {
     return null; // Don't show loading state for alerts
-  }
-
-  if (error) {
-    return (
-      <div style={{ padding: '10px', color: 'red', fontSize: '14px' }}>
-        {error}
-      </div>
-    );
   }
 
   // Don't render anything if there are no active alerts

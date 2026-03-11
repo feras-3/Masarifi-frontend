@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { BudgetStatus } from '../types/budget';
 import { budgetService } from '../services/budgetService';
 
@@ -52,11 +53,23 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({ refreshTrigger = 0
   }
 
   return (
-    <div>
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px' }}>
       {budgetStatuses.map((budgetStatus) => {
         // Determine if warning color should be displayed (spending exceeds 80%)
         const isWarning = budgetStatus.percentageUsed >= 80;
         const remainingColor = isWarning ? '#ff9800' : '#4CAF50';
+
+        const spentColor =
+          budgetStatus.percentageUsed >= 100
+            ? '#f44336'
+            : budgetStatus.percentageUsed >= 80
+            ? '#ff9800'
+            : '#4CAF50';
+
+        const chartData = [
+          { name: 'Spent', value: budgetStatus.spent },
+          { name: 'Remaining', value: Math.max(budgetStatus.remaining, 0) },
+        ];
 
         return (
           <div
@@ -66,83 +79,67 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({ refreshTrigger = 0
               border: '1px solid #ddd',
               borderRadius: '8px',
               backgroundColor: '#f9f9f9',
-              marginBottom: '20px'
+              flex: '1 1 320px',
+              minWidth: '320px'
             }}
           >
-            <h2 style={{ marginTop: 0, marginBottom: '20px' }}>
+            <h2 style={{ marginTop: 0, marginBottom: '4px' }}>
               {budgetStatus.category || 'General'} Budget
             </h2>
-
-            <div style={{ marginBottom: '15px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                <span style={{ fontWeight: 'bold' }}>Period:</span>
-                <span>{budgetStatus.period}</span>
-              </div>
+            <div style={{ marginBottom: '16px', color: '#666', fontSize: '14px' }}>
+              Period: {budgetStatus.period}
             </div>
 
-            <div style={{ marginBottom: '15px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                <span style={{ fontWeight: 'bold' }}>Budget Amount:</span>
-                <span style={{ fontSize: '18px', fontWeight: 'bold' }}>
-                  ${budgetStatus.amount.toFixed(2)}
-                </span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '32px', flexWrap: 'wrap' }}>
+              {/* Donut chart */}
+              <div style={{ width: 220, height: 220, flexShrink: 0 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={chartData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={60}
+                      outerRadius={90}
+                      startAngle={90}
+                      endAngle={-270}
+                      dataKey="value"
+                      strokeWidth={0}
+                    >
+                      <Cell fill={spentColor} />
+                      <Cell fill="#e0e0e0" />
+                    </Pie>
+                    <Tooltip
+                      formatter={(value: number) => `$${value.toFixed(2)}`}
+                    />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
               </div>
-            </div>
 
-            <div style={{ marginBottom: '15px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                <span style={{ fontWeight: 'bold' }}>Spent:</span>
-                <span style={{ fontSize: '18px', color: '#f44336' }}>
-                  ${budgetStatus.spent.toFixed(2)}
-                </span>
-              </div>
-            </div>
-
-            <div style={{ marginBottom: '15px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                <span style={{ fontWeight: 'bold' }}>Remaining Balance:</span>
-                <span
-                  style={{
-                    fontSize: '18px',
-                    fontWeight: 'bold',
-                    color: remainingColor
-                  }}
-                >
-                  ${budgetStatus.remaining.toFixed(2)}
-                </span>
-              </div>
-            </div>
-
-            {/* Progress bar */}
-            <div style={{ marginBottom: '15px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
-                <span style={{ fontWeight: 'bold' }}>Usage:</span>
-                <span style={{ fontWeight: 'bold' }}>
-                  {budgetStatus.percentageUsed.toFixed(1)}%
-                </span>
-              </div>
-              <div
-                style={{
-                  width: '100%',
-                  height: '20px',
-                  backgroundColor: '#e0e0e0',
-                  borderRadius: '10px',
-                  overflow: 'hidden'
-                }}
-              >
-                <div
-                  style={{
-                    width: `${Math.min(budgetStatus.percentageUsed, 100)}%`,
-                    height: '100%',
-                    backgroundColor:
-                      budgetStatus.percentageUsed >= 100
-                        ? '#f44336'
-                        : budgetStatus.percentageUsed >= 80
-                        ? '#ff9800'
-                        : '#4CAF50',
-                    transition: 'width 0.3s ease'
-                  }}
-                />
+              {/* Stats */}
+              <div style={{ flex: 1, minWidth: '160px' }}>
+                <div style={{ marginBottom: '12px' }}>
+                  <div style={{ fontSize: '13px', color: '#666', marginBottom: '2px' }}>Budget</div>
+                  <div style={{ fontSize: '22px', fontWeight: 'bold' }}>
+                    ${budgetStatus.amount.toFixed(2)}
+                  </div>
+                </div>
+                <div style={{ marginBottom: '12px' }}>
+                  <div style={{ fontSize: '13px', color: '#666', marginBottom: '2px' }}>Spent</div>
+                  <div style={{ fontSize: '22px', fontWeight: 'bold', color: spentColor }}>
+                    ${budgetStatus.spent.toFixed(2)}
+                  </div>
+                </div>
+                <div style={{ marginBottom: '12px' }}>
+                  <div style={{ fontSize: '13px', color: '#666', marginBottom: '2px' }}>Remaining</div>
+                  <div style={{ fontSize: '22px', fontWeight: 'bold', color: remainingColor }}>
+                    ${budgetStatus.remaining.toFixed(2)}
+                  </div>
+                </div>
+                <div style={{ fontSize: '13px', color: '#888' }}>
+                  {budgetStatus.percentageUsed.toFixed(1)}% used
+                </div>
               </div>
             </div>
 
@@ -154,7 +151,7 @@ export const BudgetSummary: React.FC<BudgetSummaryProps> = ({ refreshTrigger = 0
                   backgroundColor: budgetStatus.percentageUsed >= 100 ? '#ffebee' : '#fff3e0',
                   border: `1px solid ${budgetStatus.percentageUsed >= 100 ? '#f44336' : '#ff9800'}`,
                   borderRadius: '4px',
-                  marginTop: '15px'
+                  marginTop: '16px'
                 }}
               >
                 <span style={{ fontWeight: 'bold', color: budgetStatus.percentageUsed >= 100 ? '#f44336' : '#ff9800' }}>

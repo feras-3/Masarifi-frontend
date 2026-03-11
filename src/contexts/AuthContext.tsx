@@ -23,7 +23,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const storedUsername = localStorage.getItem(USERNAME_KEY);
     if (storedToken) {
       setToken(storedToken);
-      setUsername(storedUsername);
+      const cleanUsername = storedUsername && storedUsername !== 'undefined' ? storedUsername : null;
+      setUsername(cleanUsername);
+      if (!cleanUsername) localStorage.removeItem(USERNAME_KEY);
     }
     setIsLoading(false);
   }, []);

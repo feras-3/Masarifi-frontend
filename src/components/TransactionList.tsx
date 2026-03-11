@@ -158,20 +158,22 @@ export const TransactionList: React.FC<TransactionListProps> = ({
                   </span>
                 </td>
                 <td style={{ padding: '12px' }}>
-                  <button
-                    onClick={() => onEdit(transaction)}
-                    style={{
-                      padding: '5px 10px',
-                      marginRight: '5px',
-                      backgroundColor: '#4CAF50',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '4px',
-                      cursor: 'pointer'
-                    }}
-                  >
-                    Edit
-                  </button>
+                  {transaction.source !== 'PLAID' && (
+                    <button
+                      onClick={() => onEdit(transaction)}
+                      style={{
+                        padding: '5px 10px',
+                        marginRight: '5px',
+                        backgroundColor: '#4CAF50',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '4px',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Edit
+                    </button>
+                  )}
                   <button
                     onClick={() => handleDelete(transaction.id)}
                     style={{

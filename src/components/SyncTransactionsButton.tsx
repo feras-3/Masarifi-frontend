@@ -7,8 +7,8 @@ interface SyncTransactionsButtonProps {
   onSyncComplete?: (newCount: number) => void;
 }
 
-export const SyncTransactionsButton: React.FC<SyncTransactionsButtonProps> = ({ 
-  onSyncComplete 
+export const SyncTransactionsButton: React.FC<SyncTransactionsButtonProps> = ({
+  onSyncComplete
 }) => {
   const [syncing, setSyncing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -19,21 +19,20 @@ export const SyncTransactionsButton: React.FC<SyncTransactionsButtonProps> = ({
       setSyncing(true);
       setError(null);
       setSuccessMessage(null);
-      
+
       const result = await plaidService.syncTransactions();
-      
+
       if (result.success) {
         const message = result.newTransactionCount === 0
           ? 'No new transactions found.'
           : `Successfully imported ${result.newTransactionCount} new transaction${result.newTransactionCount === 1 ? '' : 's'}!`;
-        
+
         setSuccessMessage(message);
-        
+
         if (onSyncComplete) {
           onSyncComplete(result.newTransactionCount);
         }
-        
-        // Clear success message after 5 seconds
+
         setTimeout(() => {
           setSuccessMessage(null);
         }, 5000);
@@ -59,9 +58,9 @@ export const SyncTransactionsButton: React.FC<SyncTransactionsButtonProps> = ({
           ✓ {successMessage}
         </div>
       )}
-      
+
       {error && <ErrorMessage error={error} />}
-      
+
       {syncing ? (
         <LoadingSpinner size="small" message="Syncing transactions..." />
       ) : (
@@ -76,7 +75,7 @@ export const SyncTransactionsButton: React.FC<SyncTransactionsButtonProps> = ({
           🔄 Sync Transactions
         </button>
       )}
-      
+
       <div style={styles.helpText}>
         Click to manually sync transactions from your linked bank account.
       </div>

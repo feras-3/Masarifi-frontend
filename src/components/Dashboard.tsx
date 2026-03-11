@@ -13,10 +13,12 @@ import { BudgetRequest } from '../types/budget';
 import { transactionService } from '../services/transactionService';
 import { budgetService } from '../services/budgetService';
 import plaidService from '../services/plaidService';
+import { useAuth } from '../contexts/AuthContext';
 
 type View = 'dashboard' | 'add-transaction' | 'manage-budget';
 
 export const Dashboard: React.FC = () => {
+  const { logout, username } = useAuth();
   const [currentView, setCurrentView] = useState<View>('dashboard');
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [editingTransaction, setEditingTransaction] = useState<Transaction | null>(null);
@@ -129,6 +131,14 @@ export const Dashboard: React.FC = () => {
           Manage Budget
         </button>
       </div>
+      <div style={styles.navRight}>
+        {username && (
+          <span style={styles.navUsername}>👤 {username}</span>
+        )}
+        <button onClick={logout} style={styles.logoutButton}>
+          Logout
+        </button>
+      </div>
     </nav>
   );
 
@@ -158,7 +168,7 @@ export const Dashboard: React.FC = () => {
             </div>
           ) : hasLinkedAccount ? (
             <>
-              <PlaidAccountStatus 
+              <PlaidAccountStatus
                 refreshTrigger={refreshTrigger}
                 onUnlink={handleUnlink}
               />
@@ -245,6 +255,26 @@ const styles = {
   navButtons: {
     display: 'flex',
     gap: '10px'
+  },
+  navRight: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: '12px'
+  },
+  navUsername: {
+    color: 'rgba(255,255,255,0.75)',
+    fontSize: '14px'
+  },
+  logoutButton: {
+    padding: '7px 16px',
+    backgroundColor: 'transparent',
+    color: 'white',
+    border: '1px solid rgba(255,255,255,0.5)',
+    borderRadius: '4px',
+    cursor: 'pointer',
+    fontSize: '14px',
+    fontWeight: 600,
+    transition: 'all 0.2s'
   },
   navButton: {
     backgroundColor: 'transparent',
