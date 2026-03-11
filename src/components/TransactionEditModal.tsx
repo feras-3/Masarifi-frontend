@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Transaction, TransactionRequest } from '../types/transaction';
-import { TransactionForm } from './TransactionForm';
+import React, { useState, useEffect } from 'react'
+import { Transaction, TransactionRequest } from '../types/transaction'
+import { TransactionForm } from './TransactionForm'
 
 interface TransactionEditModalProps {
-  transaction: Transaction | null;
-  onClose: () => void;
-  onSave: (id: string, data: TransactionRequest) => Promise<void>;
+  transaction: Transaction | null
+  onClose: () => void
+  onSave: (id: string, data: TransactionRequest) => Promise<void>
 }
 
 export const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
@@ -13,34 +13,42 @@ export const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
   onClose,
   onSave
 }) => {
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    // Reset error when modal opens with new transaction
-    setError(null);
-  }, [transaction]);
+    setError(null)
+  }, [transaction])
+
+  useEffect(() => {
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = 'unset'
+    }
+  }, [])
 
   if (!transaction) {
-    return null;
+    return null
   }
 
   const handleSubmit = async (data: TransactionRequest) => {
     try {
-      setError(null);
-      await onSave(transaction.id, data);
-      onClose();
+      setError(null)
+      await onSave(transaction.id, data)
+      onClose()
     } catch (err: any) {
-      const errorMessage = err.response?.data?.message || 'Failed to update transaction';
-      setError(errorMessage);
-      throw err; // Re-throw to let form handle it
+      const errorMessage =
+        err.response?.data?.message || 'Failed to update transaction'
+      setError(errorMessage)
+      throw err
     }
-  };
+  }
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
-      onClose();
+      onClose()
     }
-  };
+  }
 
   return (
     <div
@@ -51,35 +59,75 @@ export const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
         left: 0,
         right: 0,
         bottom: 0,
-        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
         display: 'flex',
         justifyContent: 'center',
         alignItems: 'center',
-        zIndex: 1000
+        zIndex: 1000,
+        padding: '16px',
+        overflowY: 'auto'
       }}
     >
       <div
         style={{
           backgroundColor: 'white',
-          padding: '30px',
-          borderRadius: '8px',
+          padding: '24px 20px',
+          borderRadius: '12px',
           maxWidth: '600px',
-          width: '90%',
+          width: '100%',
           maxHeight: '90vh',
           overflowY: 'auto',
-          boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
+          animation: 'slideIn 0.2s ease-out'
         }}
+        onClick={(e) => e.stopPropagation()}
       >
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-          <h2 style={{ margin: 0 }}>Edit Transaction</h2>
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: '24px',
+            paddingBottom: '16px',
+            borderBottom: '2px solid #f0f0f0'
+          }}
+        >
+          <h2
+            style={{
+              margin: 0,
+              fontSize: '24px',
+              fontWeight: 700,
+              color: '#2c3e50',
+              letterSpacing: '-0.5px'
+            }}
+          >
+            Edit Transaction
+          </h2>
           <button
             onClick={onClose}
+            aria-label="Close modal"
             style={{
               background: 'none',
               border: 'none',
-              fontSize: '24px',
+              fontSize: '28px',
               cursor: 'pointer',
-              color: '#666'
+              color: '#666',
+              padding: '0',
+              width: '32px',
+              height: '32px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              borderRadius: '6px',
+              transition: 'all 0.2s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#f5f5f5'
+              e.currentTarget.style.color = '#333'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'transparent'
+              e.currentTarget.style.color = '#666'
             }}
           >
             ×
@@ -89,29 +137,40 @@ export const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
         {transaction.source === 'PLAID' && transaction.plaidCategory && (
           <div
             style={{
-              padding: '10px',
+              padding: '14px 16px',
               backgroundColor: '#e3f2fd',
-              borderRadius: '4px',
-              marginBottom: '15px',
-              fontSize: '14px'
+              borderRadius: '8px',
+              marginBottom: '20px',
+              fontSize: '14px',
+              lineHeight: '1.5',
+              border: '1px solid #90caf9'
             }}
           >
-            <strong>Note:</strong> This is a Plaid transaction. You can change the category, but the original Plaid category 
-            ({transaction.plaidCategory}) will be preserved for reference.
+            <strong style={{ color: '#1976d2' }}>ℹ️ Note:</strong> This is a
+            Plaid transaction. You can change the category, but the original
+            Plaid category ({transaction.plaidCategory}) will be preserved for
+            reference.
           </div>
         )}
 
         {error && (
           <div
             style={{
-              padding: '10px',
-              backgroundColor: '#ffebee',
+              padding: '14px 16px',
+              backgroundColor: '#fff0f0',
               color: '#c62828',
-              borderRadius: '4px',
-              marginBottom: '15px'
+              borderRadius: '8px',
+              marginBottom: '20px',
+              fontSize: '14px',
+              fontWeight: 500,
+              border: '1px solid #ffcdd2',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px'
             }}
           >
-            {error}
+            <span>⚠️</span>
+            <span>{error}</span>
           </div>
         )}
 
@@ -129,18 +188,31 @@ export const TransactionEditModal: React.FC<TransactionEditModalProps> = ({
         <button
           onClick={onClose}
           style={{
-            marginTop: '10px',
-            padding: '10px 20px',
+            marginTop: '16px',
+            width: '100%',
+            padding: '12px 24px',
             backgroundColor: '#f5f5f5',
             color: '#333',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-            cursor: 'pointer'
+            border: '1.5px solid #e0e0e0',
+            borderRadius: '8px',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: 600,
+            transition: 'all 0.2s ease',
+            minHeight: '48px'
+          }}
+          onMouseEnter={(e) => {
+            e.currentTarget.style.backgroundColor = '#e0e0e0'
+            e.currentTarget.style.borderColor = '#ccc'
+          }}
+          onMouseLeave={(e) => {
+            e.currentTarget.style.backgroundColor = '#f5f5f5'
+            e.currentTarget.style.borderColor = '#e0e0e0'
           }}
         >
           Cancel
         </button>
       </div>
     </div>
-  );
-};
+  )
+}

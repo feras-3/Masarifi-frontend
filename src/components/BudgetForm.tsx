@@ -100,7 +100,7 @@ export const BudgetForm: React.FC<BudgetFormProps> = ({
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ maxWidth: '600px', margin: '0' }}>
+    <form onSubmit={handleSubmit} style={{ width: '100%', margin: '0' }}>
       {/* Amount */}
       <div style={{ marginBottom: '24px' }}>
         <label htmlFor="amount" style={labelStyle}>
